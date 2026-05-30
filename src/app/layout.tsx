@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { RoadSosProvider } from "@/context/RoadSosContext";
+import GlobalAiAssistant from "@/components/widgets/GlobalAiAssistant";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
         <AuthProvider>
           <RoadSosProvider>
             {children}
+            <GlobalAiAssistant />
           </RoadSosProvider>
         </AuthProvider>
       </body>

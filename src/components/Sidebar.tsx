@@ -16,7 +16,10 @@ import {
   Wrench, 
   History, 
   Settings, 
-  LogOut 
+  LogOut,
+  Users,
+  FileText,
+  Phone
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -30,17 +33,46 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const { serviceMode } = useRoadSos();
   const [collapsed, setCollapsed] = useState(false);
 
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "vehicle", label: "Vehicle Monitoring", icon: Cpu },
-    { id: "alerts", label: "Emergency Alerts", icon: ShieldAlert, badge: true },
-    { id: "gps", label: "GPS Tracking", icon: Map },
-    { id: "analytics", label: "AI Analytics", icon: LineChart },
-    { id: "iot", label: "IoT Sensors", icon: Radio },
-    { id: "service", label: "Service Mode", icon: Wrench, warnBadge: true },
-    { id: "history", label: "Accident History", icon: History },
-    { id: "settings", label: "Settings", icon: Settings },
-  ];
+  const getMenuItems = () => {
+    switch (user?.role) {
+      case "SUPER_ADMIN":
+        return [
+          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { id: "alerts", label: "Emergency Monitoring", icon: ShieldAlert, badge: true },
+          { id: "user_management", label: "User Management", icon: Users },
+          { id: "analytics", label: "AI Analytics", icon: LineChart },
+          { id: "gps", label: "GPS Monitoring", icon: Map },
+          { id: "system", label: "System Health", icon: Radio },
+          { id: "reports", label: "Reports", icon: FileText },
+          { id: "settings", label: "Settings", icon: Settings },
+        ];
+      case "DRIVER":
+        return [
+          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { id: "vehicle", label: "Vehicle Monitoring", icon: Cpu },
+          { id: "gps", label: "GPS Tracking", icon: Map },
+          { id: "contacts", label: "Emergency Contacts", icon: Phone },
+          { id: "ai_safety", label: "AI Safety", icon: ShieldAlert },
+          { id: "service", label: "Service Mode", icon: Wrench, warnBadge: true },
+          { id: "history", label: "Accident History", icon: History },
+          { id: "settings", label: "Settings", icon: Settings },
+        ];
+      case "EMERGENCY_TEAM":
+        return [
+          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+          { id: "alerts", label: "Active Emergencies", icon: ShieldAlert, badge: true },
+          { id: "dispatch", label: "Dispatch Center", icon: Wrench },
+          { id: "gps", label: "Emergency Map", icon: Map },
+          { id: "history", label: "Incident History", icon: History },
+          { id: "performance", label: "Performance Analytics", icon: LineChart },
+          { id: "settings", label: "Settings", icon: Settings },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   const { incidents } = useRoadSos();
   const activeAlertsCount = incidents.filter(i => i.status !== "RESOLVED").length;

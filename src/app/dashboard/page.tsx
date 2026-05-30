@@ -62,6 +62,13 @@ export default function DashboardRouter() {
     }
   }, [user, loading, router]);
 
+  // Reset activeTab to "dashboard" upon role changes to prevent tab state contamination
+  useEffect(() => {
+    if (user?.role) {
+      setActiveTab("dashboard");
+    }
+  }, [user?.role]);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
@@ -538,6 +545,315 @@ export default function DashboardRouter() {
               </div>
             </div>
 
+          </div>
+        );
+
+      case "user_management":
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">Registered User Directories</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Manage driver metadata profiles and active EMT responder allocations.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Drivers grid list */}
+              <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl space-y-3">
+                <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider">Registered Driver Profiles</h4>
+                <div className="space-y-2">
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Sarah Jenkins</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">driver@roadsos.com | CAR TYPE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-brand-success font-black text-[9px] uppercase tracking-wider">Active</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Robert Miller</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">robert@roadsos.com | BIKE TYPE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-brand-success font-black text-[9px] uppercase tracking-wider">Active</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Diana Ross</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">diana@roadsos.com | CAR TYPE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-500 font-black text-[9px] uppercase tracking-wider">Standby</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Responders grid list */}
+              <div className="p-4 bg-slate-50/50 border border-slate-100 rounded-xl space-y-3">
+                <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider">Rescue Squad Allocations</h4>
+                <div className="space-y-2">
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Rescue Team Alpha (Medic-14)</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">responder@roadsos.com | AMBULANCE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-brand-success font-black text-[9px] uppercase tracking-wider">On Standby</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Paramedics Division 4B</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">paramedic4b@roadsos.com | AMBULANCE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-red-100 text-brand-emergency font-black text-[9px] uppercase tracking-wider">Active Routing</span>
+                  </div>
+                  <div className="p-3 bg-white rounded-lg border border-slate-150 flex items-center justify-between text-xs font-semibold text-brand-navy">
+                    <div>
+                      <div className="font-extrabold">Fire Rescue Squad Charlie</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5 font-medium font-mono">firecharlie@roadsos.com | FIRE ENGINE</div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-brand-success font-black text-[9px] uppercase tracking-wider">On Standby</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "system":
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">Ecosystem System Health</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Live connectivity signals across IoT streams and cloud databases.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              {/* MQTT Broker Status */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">MQTT Gateway</span>
+                  <span className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-brand-navy leading-none">CONNECTED</div>
+                  <span className="text-[10px] font-mono text-muted block mt-1.5">mqtt.roadsos.org:1883</span>
+                </div>
+              </div>
+
+              {/* ESP32 Watchdog loop */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">ESP32 Watchdog</span>
+                  <span className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-brand-navy leading-none">ARMED & NOMINAL</div>
+                  <span className="text-[10px] font-mono text-muted block mt-1.5">CPU Load: 14% | VCC: 3.31V</span>
+                </div>
+              </div>
+
+              {/* Firestore database index */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">Cloud Firestore</span>
+                  <span className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-brand-navy leading-none">SYNCHRONIZED</div>
+                  <span className="text-[10px] font-mono text-muted block mt-1.5">Indices: 100% active | 14ms latency</span>
+                </div>
+              </div>
+
+              {/* CAD API health */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black text-slate-400 uppercase">CAD Routing Router</span>
+                  <span className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-brand-navy leading-none">ONLINE (QoS 2)</div>
+                  <span className="text-[10px] font-mono text-muted block mt-1.5">API response: 18ms nominal</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+
+      case "reports":
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">Ecosystem Consolidated Analytics Logs</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Consolidated quarterly report matrices compiled dynamically.</p>
+            </div>
+            
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-4">
+              <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider">Fleet Calibration Statistics</h4>
+              <div className="space-y-2 text-xs font-semibold text-text-secondary">
+                <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Average Paramedic Response Time:</span> <span className="text-brand-primary font-bold">4.2 Minutes</span></div>
+                <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>CAD Rescue Dispatch Success Rate:</span> <span className="text-brand-success font-bold">99.85%</span></div>
+                <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Total System Safety Calibrations:</span> <span className="font-mono">1,424 packets</span></div>
+                <div className="flex justify-between"><span>Annual Decreased Traumatic Trauma:</span> <span className="text-brand-success font-bold">-38% YoY</span></div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "contacts":
+        // Standalone Emergency Contacts Manager for Drivers
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">Designated Emergency Contacts Manager</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Register and delete crisis contacts automatically notified during accident triggers.</p>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl max-w-xl mx-auto space-y-4">
+              <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider block">Crisis Contacts Directory</h4>
+              <div className="space-y-2">
+                <div className="p-3.5 bg-white border border-slate-150 rounded-xl flex items-center justify-between text-xs">
+                  <div>
+                    <div className="font-extrabold text-brand-navy flex items-center space-x-2">
+                      <span>David Jenkins</span>
+                      <span className="px-1.5 py-0.5 rounded bg-blue-100 text-[8px] font-bold text-brand-primary uppercase">Spouse</span>
+                    </div>
+                    <div className="text-[10px] text-text-secondary mt-0.5 font-bold font-mono">+1 (555) 732-4412</div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-blue-50 text-brand-primary text-[8px] font-bold">Auto-SMS armed</span>
+                </div>
+
+                <div className="p-3.5 bg-white border border-slate-150 rounded-xl flex items-center justify-between text-xs">
+                  <div>
+                    <div className="font-extrabold text-brand-navy flex items-center space-x-2">
+                      <span>Medical Coordinator Helpline</span>
+                      <span className="px-1.5 py-0.5 rounded bg-blue-100 text-[8px] font-bold text-brand-primary uppercase">First Responder Help</span>
+                    </div>
+                    <div className="text-[10px] text-text-secondary mt-0.5 font-bold font-mono">+1 (555) 911-0800</div>
+                  </div>
+                  <span className="px-2 py-0.5 rounded bg-blue-50 text-brand-primary text-[8px] font-bold">Auto-SMS armed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "ai_safety":
+        // Driver Safety Score tab
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">AI Driving Safety Analysis</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Cognitive fatigue records, drowsiness indicators, and accident risk values.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Driver Safety Score */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Driver Safety Score</span>
+                <div>
+                  <div className="text-2xl font-black text-brand-primary">98 / 100</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full mt-2">
+                    <div className="bg-brand-primary h-full rounded-full" style={{ width: "98%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Drowsiness Quotient */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Drowsiness Alert Index</span>
+                <div>
+                  <div className="text-2xl font-black text-brand-success leading-none">NOMINAL</div>
+                  <span className="text-[10px] text-muted block mt-1.5 font-semibold">Cognitive response within limits</span>
+                </div>
+              </div>
+
+              {/* Accident Probability */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Accident Collision Risk</span>
+                <div>
+                  <div className="text-2xl font-black text-brand-navy leading-none">LOW (0.01%)</div>
+                  <span className="text-[10px] text-muted block mt-1.5 font-semibold">Peak G-forces loops stable</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+
+      case "dispatch":
+        // Responder dispatch controls
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">EMT Dispatch Center Console</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Verify victim vitals, select ambulance corridors, and allocate response vectors.</p>
+            </div>
+            
+            <div className="p-5 bg-slate-50 border border-slate-100 rounded-xl space-y-4 max-w-xl mx-auto">
+              <h4 className="text-xs font-black text-brand-navy uppercase tracking-wider">Active Coordinate Dispatch Controls</h4>
+              
+              <div className="grid grid-cols-2 gap-4 text-xs font-semibold text-text-secondary border-b border-slate-150 pb-3">
+                <div>Selected Incident ID: <span className="font-extrabold text-brand-navy font-mono">inc-104</span></div>
+                <div>G-Force Peak: <span className="font-extrabold text-brand-emergency font-mono">6.8G</span></div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 pt-2">
+                <button 
+                  onClick={() => alert("Rescue Incident Accepted! Pre-clearing dynamic corridor light routes...")}
+                  className="px-4 py-2.5 bg-brand-success hover:bg-emerald-600 text-white font-bold rounded-lg text-xs transition-all active:scale-95 shadow-sm cursor-pointer"
+                >
+                  Accept Incident
+                </button>
+                <button 
+                  onClick={() => alert("Incident Declined. Rerouting dispatch packet back to supervisor queue.")}
+                  className="px-4 py-2.5 bg-red-100 hover:bg-red-200 text-brand-emergency font-bold rounded-lg text-xs transition-all active:scale-95 border border-red-200 cursor-pointer"
+                >
+                  Reject Incident
+                </button>
+                <button 
+                  onClick={() => alert("Status update: Paramedics corridor routing complete. Team on-scene.")}
+                  className="px-4 py-2.5 bg-brand-primary hover:bg-brand-light text-white font-bold rounded-lg text-xs transition-all active:scale-95 shadow-sm cursor-pointer"
+                >
+                  Update Paramedics Status
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "performance":
+        // Responder performance stats
+        return (
+          <div className="glass-card p-6 bg-white space-y-6">
+            <div>
+              <h3 className="text-base font-black text-brand-navy">Paramedic Performance & Dispatch Analytics</h3>
+              <p className="text-xs text-text-secondary mt-0.5 font-medium">Review monthly EMT response times and incident resolution ratios.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Avg Response Time */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Average Response Time</span>
+                <div className="text-2xl font-black text-brand-primary leading-none">4.2 Minutes</div>
+                <span className="text-[9px] font-bold text-brand-success block mt-0.5">45% faster than city average</span>
+              </div>
+
+              {/* Resolved cases */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Total Incidents Resolved</span>
+                <div className="text-2xl font-black text-brand-success leading-none">100% SUCCESS</div>
+                <span className="text-[9px] font-semibold text-muted block mt-0.5">All 14 crashes cleared safely</span>
+              </div>
+
+              {/* Pending emergencies */}
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-2">
+                <span className="text-[9px] font-black text-slate-400 uppercase block">Pending Emergency Queue</span>
+                <div className="text-2xl font-black text-brand-navy leading-none">0 Pending</div>
+                <span className="text-[9px] font-semibold text-brand-success block mt-0.5 font-mono">All drivers verified safe</span>
+              </div>
+
+            </div>
           </div>
         );
 
