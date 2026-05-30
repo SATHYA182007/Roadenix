@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth, Role } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRoadSos } from "@/context/RoadSosContext";
 import { 
   Bell, 
@@ -20,7 +20,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ activeTab }: TopbarProps) {
-  const { user, switchRole } = useAuth();
+  const { user } = useAuth();
   const { 
     telemetry, 
     activeLanguage, 
@@ -84,42 +84,7 @@ export default function Topbar({ activeTab }: TopbarProps) {
 
       {/* Role Selector Toolbar & Interactive Controls */}
       <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
-        {/* Role Quick Switcher */}
-        {user && (
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
-            <span className="text-[9px] font-bold text-muted px-2.5 uppercase tracking-wider hidden lg:inline">ROLE SWITCHER:</span>
-            <button
-              onClick={() => switchRole("SUPER_ADMIN")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                user.role === "SUPER_ADMIN" 
-                  ? "bg-white text-brand-primary shadow-sm" 
-                  : "text-text-secondary hover:text-brand-navy"
-              }`}
-            >
-              Admin
-            </button>
-            <button
-              onClick={() => switchRole("DRIVER")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                user.role === "DRIVER" 
-                  ? "bg-white text-brand-primary shadow-sm" 
-                  : "text-text-secondary hover:text-brand-navy"
-              }`}
-            >
-              Driver
-            </button>
-            <button
-              onClick={() => switchRole("EMERGENCY_TEAM")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                user.role === "EMERGENCY_TEAM" 
-                  ? "bg-white text-brand-primary shadow-sm" 
-                  : "text-text-secondary hover:text-brand-navy"
-              }`}
-            >
-              Responder
-            </button>
-          </div>
-        )}
+
 
         {/* Global System Broadcaster (Admin Only) */}
         {user?.role === "SUPER_ADMIN" && (
