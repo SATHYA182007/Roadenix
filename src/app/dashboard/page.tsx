@@ -914,8 +914,8 @@ export default function DashboardRouter() {
         {/* Dynamic Inner Tab Content */}
         {renderTabContent()}
 
-        {/* Grid panel for secondary simulators in Dashboard */}
-        {activeTab === "dashboard" && (
+        {/* Grid panel for secondary simulators in Dashboard — DRIVER role only */}
+        {activeTab === "dashboard" && user.role === "DRIVER" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
               
