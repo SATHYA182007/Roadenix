@@ -152,32 +152,125 @@ export default function DashboardRouter() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* Dispatch Analytics */}
-              <div className="glass-card p-5 bg-white border-slate-200/60">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Dispatch Analytics</h4>
-                <div className="space-y-2 text-xs font-semibold text-text-secondary">
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Average Response Time:</span> <span className="text-brand-primary font-bold">4.2 minutes</span></div>
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Dispatch Success Rate:</span> <span className="text-brand-success font-bold">99.8%</span></div>
-                  <div className="flex justify-between"><span>Active Emergency Count:</span> <span className="text-brand-emergency font-bold">{incidents.filter(i => i.status !== "RESOLVED").length} Active</span></div>
+              <div className="glass-card p-6 bg-white border-slate-200/60 flex flex-col justify-between min-h-[220px]">
+                <div>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Dispatch Analytics</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-4.5 h-4.5 text-brand-primary animate-pulse shrink-0" />
+                        <span className="text-xs font-bold text-text-secondary">Avg Response Time</span>
+                      </div>
+                      <span className="text-sm font-black text-brand-navy">4.2 minutes</span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-bold text-text-secondary">
+                        <span>Dispatch Success Rate</span>
+                        <span className="text-brand-success font-black">99.85%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/40">
+                        <div className="bg-brand-success h-full rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" style={{ width: "99.85%" }} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 rounded-full bg-brand-emergency animate-ping shrink-0" />
+                        <span className="text-xs font-bold text-text-secondary">Active Incident Load</span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-red-50 text-brand-emergency font-black text-[10px] uppercase border border-red-100">
+                        {incidents.filter(i => i.status !== "RESOLVED").length} Alerts Active
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Response Readiness */}
-              <div className="glass-card p-5 bg-white border-slate-200/60">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Response Readiness</h4>
-                <div className="space-y-2 text-xs font-semibold text-text-secondary">
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Ambulances Available:</span> <span className="text-brand-success font-bold">14 Units Ready</span></div>
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Police Units Available:</span> <span className="text-brand-success font-bold">8 Squads Ready</span></div>
-                  <div className="flex justify-between"><span>Fire Units Available:</span> <span className="text-brand-success font-bold">4 Squads Ready</span></div>
+              <div className="glass-card p-6 bg-white border-slate-200/60 flex flex-col justify-between min-h-[220px]">
+                <div>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Response Readiness</h4>
+                  <div className="space-y-3">
+                    
+                    {/* Ambulances */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-text-secondary">
+                        <span className="flex items-center space-x-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <span>Ambulances Standby</span>
+                        </span>
+                        <span className="text-brand-navy font-mono">14 / 20 Units</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full rounded-full" style={{ width: "70%" }} />
+                      </div>
+                    </div>
+
+                    {/* Police */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-text-secondary">
+                        <span className="flex items-center space-x-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                          <span>Police Patrol Squads</span>
+                        </span>
+                        <span className="text-brand-navy font-mono">8 / 10 Squads</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-blue-500 h-full rounded-full" style={{ width: "80%" }} />
+                      </div>
+                    </div>
+
+                    {/* Fire */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs font-bold text-text-secondary">
+                        <span className="flex items-center space-x-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                          <span>Fire Engine Squads</span>
+                        </span>
+                        <span className="text-brand-navy font-mono">4 / 5 Squads</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-red-500 h-full rounded-full" style={{ width: "80%" }} />
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
               </div>
 
               {/* Emergency Event Feed */}
-              <div className="glass-card p-5 bg-white border-slate-200/60">
-                <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Event Feed</h4>
-                <div className="space-y-2 text-xs font-semibold text-text-secondary font-mono">
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Dispatch Requests:</span> <span className="text-brand-success">Received & Processing</span></div>
-                  <div className="flex justify-between border-b border-slate-100 pb-1.5"><span>Emergency Alerts:</span> <span className="text-brand-emergency font-bold">Active EOC Broadcast</span></div>
-                  <div className="flex justify-between"><span>Route Updates:</span> <span className="text-brand-primary">Optimal Corridor Locked</span></div>
+              <div className="glass-card p-6 bg-white border-slate-200/60 flex flex-col justify-between min-h-[220px]">
+                <div>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Event Feed</h4>
+                  
+                  {/* Timeline */}
+                  <div className="space-y-3.5 relative pl-3.5 border-l border-slate-100 ml-1.5">
+                    
+                    {/* Item 1 */}
+                    <div className="relative text-xs">
+                      <span className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping pointer-events-none" />
+                      <span className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                      <div className="font-extrabold text-brand-navy">Dispatch Corridors Active</div>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Optimal corridor signals locked. Received & Processing.</p>
+                    </div>
+
+                    {/* Item 2 */}
+                    <div className="relative text-xs">
+                      <span className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-emergency animate-pulse pointer-events-none" />
+                      <span className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-emergency" />
+                      <div className="font-extrabold text-brand-navy">Global SOS Broadcast</div>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">EOC Alert Active broadcasts streams.</p>
+                    </div>
+
+                    {/* Item 3 */}
+                    <div className="relative text-xs">
+                      <span className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-primary" />
+                      <div className="font-extrabold text-brand-navy">Traffic Lights Bypassed</div>
+                      <p className="text-[9px] text-slate-400 font-semibold mt-0.5">Corridor Sector 4 pre-cleared for ambulance vectors.</p>
+                    </div>
+
+                  </div>
                 </div>
               </div>
 
