@@ -589,44 +589,128 @@ export default function ResponderDashboard() {
           
           {/* Active Cases Switcher Box */}
           <div className="glass-card p-5 bg-white space-y-3">
-            <div className="flex items-center space-x-1.5 border-b border-slate-100 pb-2.5 mb-1.5">
-              <ShieldAlert className="w-4 h-4 text-brand-emergency" />
-              <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">Assigned Cases Directory</h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-1.5">
+              <div className="flex items-center space-x-1.5">
+                <ShieldAlert className="w-4 h-4 text-brand-emergency" />
+                <h3 className="text-xs font-black text-brand-navy uppercase tracking-wider">Assigned Cases Directory</h3>
+              </div>
+              <span className="text-[8px] font-black text-brand-primary bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                {assignedCases.length} Active
+              </span>
             </div>
             
-            <div className="space-y-2 overflow-y-auto max-h-[190px] pr-1 custom-scrollbar">
+            <div className="space-y-2.5 overflow-y-auto max-h-[360px] pr-1 custom-scrollbar">
               {assignedCases.length === 0 ? (
-                <p className="text-[10px] text-slate-400 italic text-center py-4">No active dispatches.</p>
+                <div className="text-center py-6 space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-brand-success flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">No active dispatches</p>
+                  <p className="text-[9px] text-slate-350 italic">EOC will push new assignments here.</p>
+                </div>
               ) : (
                 assignedCases.map(inc => {
                   const isSelected = activeMission?.id === inc.id;
+                  const missionStatus = inc.helperStatus || "Assigned";
+                  const needsAccept = missionStatus === "Assigned";
+                  const needsBackup = missionStatus !== "Assigned" && missionStatus !== "Resolved" && inc.status !== "NEEDS_SUPPORT";
+                  const isBackupRequested = inc.status === "NEEDS_SUPPORT";
+
                   return (
-                    <button
+                    <div
                       key={inc.id}
-                      onClick={() => setSelectedIncidentId(inc.id)}
-                      className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between text-xs font-semibold ${
+                      className={`p-3 rounded-xl border transition-all text-xs font-semibold ${
                         isSelected 
-                          ? "bg-blue-50 border-brand-primary text-brand-primary" 
-                          : "bg-slate-50 border-slate-100 hover:bg-slate-100/70 text-brand-navy"
+                          ? "bg-blue-50/70 border-brand-primary shadow-sm" 
+                          : "bg-slate-50 border-slate-100"
                       }`}
                     >
-                      <div className="min-w-0">
-                        <div className="font-extrabold flex items-center space-x-1.5">
-                          <span className="truncate">{inc.driverName}</span>
-                          <span className="text-[9px] font-mono text-slate-400">({inc.id})</span>
+                      {/* Top row: Driver info + select */}
+                      <button
+                        onClick={() => setSelectedIncidentId(inc.id)}
+                        className="w-full text-left flex items-center justify-between mb-2"
+                      >
+                        <div className="min-w-0">
+                          <div className={`font-extrabold flex items-center space-x-1.5 ${isSelected ? "text-brand-primary" : "text-brand-navy"}`}>
+                            <span className="truncate">{inc.driverName}</span>
+                            <span className="text-[8px] font-mono text-slate-400 bg-white border border-slate-200 px-1 rounded">
+                              {inc.id}
+                            </span>
+                          </div>
+                          <div className="text-[9px] text-slate-400 font-mono mt-0.5 truncate max-w-[180px]">{inc.accidentReason}</div>
                         </div>
-                        <div className="text-[9px] text-slate-400 font-mono mt-0.5 truncate max-w-[190px]">{inc.accidentReason}</div>
+                        <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider shrink-0 ml-2 ${
+                          isBackupRequested
+                            ? "bg-red-100 text-brand-emergency animate-pulse"
+                            : needsAccept
+                              ? "bg-amber-100 text-amber-600"
+                              : isSelected 
+                                ? "bg-blue-100 text-brand-primary" 
+                                : "bg-slate-200 text-slate-550"
+                        }`}>
+                          {missionStatus}
+                        </span>
+                      </button>
+
+                      {/* Action buttons row */}
+                      <div className="flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                        {/* Accept Mission — shown when status is Assigned */}
+                        {needsAccept && (
+                          <button
+                            onClick={() => {
+                              setSelectedIncidentId(inc.id);
+                              updateIncidentStatus(inc.id, "IN_PROGRESS", { 
+                                helperStatus: "Accepted",
+                                hospitalName: selectedHospital
+                              });
+                              addTerminalLog(`[Helper Event] Accepted Mission for Incident ${inc.id}. Rescue team routing confirmed.`, "success");
+                            }}
+                            className="flex-1 px-2.5 py-1.5 rounded-lg bg-brand-navy hover:bg-slate-800 text-white text-[9px] font-black uppercase tracking-wider flex items-center justify-center space-x-1 transition-all active:scale-95 cursor-pointer shadow-sm"
+                          >
+                            <CheckCircle2 className="w-3 h-3 text-brand-success" />
+                            <span>Accept Mission</span>
+                          </button>
+                        )}
+
+                        {/* Request More Team (Backup) */}
+                        {needsBackup && (
+                          <button
+                            onClick={() => {
+                              setSelectedIncidentId(inc.id);
+                              updateIncidentStatus(inc.id, "NEEDS_SUPPORT", { 
+                                helperStatus: "Need Backup"
+                              });
+                              addTerminalLog(`[Helper Event] WARNING: Additional rescue resources requested for incident ${inc.id}. EOC status set to NEEDS SUPPORT.`, "error");
+                            }}
+                            className="flex-1 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-200 hover:bg-red-100 text-brand-emergency text-[9px] font-black uppercase tracking-wider flex items-center justify-center space-x-1 transition-all active:scale-95 cursor-pointer"
+                          >
+                            <AlertTriangle className="w-3 h-3" />
+                            <span>Need More Team</span>
+                          </button>
+                        )}
+
+                        {/* Backup already requested indicator */}
+                        {isBackupRequested && (
+                          <span className="flex-1 px-2.5 py-1.5 rounded-lg bg-red-50 border border-red-200 text-brand-emergency text-[9px] font-black uppercase tracking-wider flex items-center justify-center space-x-1">
+                            <AlertTriangle className="w-3 h-3 animate-pulse" />
+                            <span>Backup Requested</span>
+                          </span>
+                        )}
+
+                        {/* View/Select button always present */}
+                        <button
+                          onClick={() => setSelectedIncidentId(inc.id)}
+                          className={`px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center justify-center space-x-1 transition-all active:scale-95 cursor-pointer border ${
+                            isSelected 
+                              ? "bg-blue-50 border-blue-200 text-brand-primary" 
+                              : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                          }`}
+                        >
+                          <ArrowRight className="w-3 h-3" />
+                          <span>{isSelected ? "Active" : "View"}</span>
+                        </button>
                       </div>
-                      <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider shrink-0 ml-2 ${
-                        inc.status === "NEEDS_SUPPORT" 
-                          ? "bg-red-150 text-brand-emergency" 
-                          : isSelected 
-                            ? "bg-blue-100 text-brand-primary" 
-                            : "bg-slate-200 text-slate-550"
-                      }`}>
-                        {inc.helperStatus || inc.status}
-                      </span>
-                    </button>
+                    </div>
                   );
                 })
               )}

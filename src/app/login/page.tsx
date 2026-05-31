@@ -705,38 +705,21 @@ export default function LoginPage() {
                   <div className="h-[1px] bg-slate-200 w-full" />
                 </div>
 
-                {/* Split Column Buttons Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => quickLogin(loginSegment)}
-                    className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-xs text-brand-navy flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
-                  >
-                    {/* Google Colored Logo */}
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
-                      <path fill="#EA4335" d="M12 5.04c1.62 0 3.08.56 4.22 1.65l3.15-3.15C17.45 1.74 14.94 1 12 1 7.37 1 3.44 3.66 1.5 7.56l3.82 2.96c.92-2.76 3.5-4.48 6.68-4.48z" />
-                      <path fill="#4285F4" d="M23.49 12.27c0-.82-.07-1.61-.21-2.38H12v4.51h6.44c-.28 1.48-1.12 2.73-2.38 3.58l3.7 2.87c2.16-1.99 3.43-4.92 3.43-8.58z" />
-                      <path fill="#FBBC05" d="M5.32 10.52c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.5 2.98C.54 4.89 0 7.07 0 9.38s.54 4.49 1.5 6.4l3.82-2.96c-.24-.72-.38-1.49-.38-2.3z" />
-                      <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.7-2.87c-1.03.69-2.34 1.1-3.96 1.1-3.18 0-5.76-1.72-6.68-4.48L1.5 16.8c1.94 3.9 5.87 6.2 10.5 6.2z" />
-                    </svg>
-                    <span>Google</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => quickLogin(loginSegment)}
-                    className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-xs text-brand-navy flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
-                  >
-                    {/* Microsoft Colored Logo */}
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 23 23">
-                      <path fill="#f35325" d="M0 0h11v11H0z" />
-                      <path fill="#80bb0a" d="M12 0h11v11H12z" />
-                      <path fill="#00a4ef" d="M0 12h11v11H0z" />
-                      <path fill="#ffb900" d="M12 12h11v11H12z" />
-                    </svg>
-                    <span>Microsoft</span>
-                  </button>
-                </div>
+                {/* Single "Continue with Google" button */}
+                <button
+                  type="button"
+                  onClick={() => quickLogin(loginSegment)}
+                  className="w-full py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-blue-300 transition-all font-bold text-xs text-brand-navy flex items-center justify-center space-x-2.5 active:scale-95 cursor-pointer shadow-sm"
+                >
+                  {/* Google Colored Logo */}
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5.04c1.62 0 3.08.56 4.22 1.65l3.15-3.15C17.45 1.74 14.94 1 12 1 7.37 1 3.44 3.66 1.5 7.56l3.82 2.96c.92-2.76 3.5-4.48 6.68-4.48z" />
+                    <path fill="#4285F4" d="M23.49 12.27c0-.82-.07-1.61-.21-2.38H12v4.51h6.44c-.28 1.48-1.12 2.73-2.38 3.58l3.7 2.87c2.16-1.99 3.43-4.92 3.43-8.58z" />
+                    <path fill="#FBBC05" d="M5.32 10.52c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.5 2.98C.54 4.89 0 7.07 0 9.38s.54 4.49 1.5 6.4l3.82-2.96c-.24-.72-.38-1.49-.38-2.3z" />
+                    <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.7-2.87c-1.03.69-2.34 1.1-3.96 1.1-3.18 0-5.76-1.72-6.68-4.48L1.5 16.8c1.94 3.9 5.87 6.2 10.5 6.2z" />
+                  </svg>
+                  <span>Continue with Google</span>
+                </button>
               </div>
 
               {/* Footer Switcher toggler */}
