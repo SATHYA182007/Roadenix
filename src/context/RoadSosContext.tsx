@@ -33,12 +33,18 @@ export interface EmergencyIncident {
   latitude: number;
   longitude: number;
   severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-  status: "REPORTED" | "DISPATCHED" | "ON_SCENE" | "PATIENT_SECURED" | "RESOLVED";
+  status: "NEW" | "UNDER_REVIEW" | "ASSIGNED" | "IN_PROGRESS" | "NEEDS_SUPPORT" | "RESOLVED" | "ARCHIVED";
   servicesDispatched: { ambulance: boolean; police: boolean; fire: boolean };
   etaMinutes: number;
   routeProgress: number; // 0 to 100
   accidentConfidence: number; // %
   accidentReason: string;
+  helperNotes?: string;
+  helperPhotos?: string[];
+  helperStatus?: "Assigned" | "Accepted" | "Travelling" | "Reached" | "Helping" | "Need Backup" | "Resolved" | "Cancelled";
+  hospitalName?: string;
+  assignedTeamId?: string;
+  assignedTeamName?: string;
 }
 
 export interface TerminalLog {
@@ -72,7 +78,7 @@ interface RoadSosContextType {
   confirmSafety: (isSafe: boolean) => void;
   toggleServiceMode: () => void;
   dispatchService: (incidentId: string, service: "ambulance" | "police" | "fire") => void;
-  updateIncidentStatus: (incidentId: string, status: EmergencyIncident["status"]) => void;
+  updateIncidentStatus: (incidentId: string, status: EmergencyIncident["status"], extraFields?: Partial<EmergencyIncident>) => void;
   addTerminalLog: (message: string, type: TerminalLog["type"]) => void;
   clearTerminalLogs: () => void;
   addNotification: (category: NotificationItem["category"], title: string, message: string) => void;
@@ -216,7 +222,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
         latitude: 37.7725,
         longitude: -122.4221,
         severity: "CRITICAL",
-        status: "REPORTED",
+        status: "NEW",
         servicesDispatched: { ambulance: false, police: false, fire: false },
         etaMinutes: 10,
         routeProgress: 0,
@@ -232,7 +238,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
         latitude: 37.7760,
         longitude: -122.4180,
         severity: "HIGH",
-        status: "DISPATCHED",
+        status: "ASSIGNED",
         servicesDispatched: { ambulance: true, police: false, fire: false },
         etaMinutes: 8,
         routeProgress: 15,
@@ -361,14 +367,14 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
     const routeInterval = setInterval(() => {
       setIncidents((prev) =>
         prev.map((inc) => {
-          if (inc.status === "DISPATCHED" || inc.status === "ON_SCENE") {
+          if (inc.status === "ASSIGNED" || inc.status === "IN_PROGRESS" || inc.status === "NEEDS_SUPPORT") {
             const hasDispatched = Object.values(inc.servicesDispatched).some((x) => x);
             if (!hasDispatched) return inc; // Responders not selected yet
 
             if (inc.routeProgress < 100) {
               const nextProgress = Math.min(100, inc.routeProgress + 4);
               const etaMinutes = Math.max(0, Math.ceil((100 - nextProgress) / 10));
-              const status = nextProgress === 100 ? "ON_SCENE" : "DISPATCHED";
+              const status = nextProgress === 100 ? "IN_PROGRESS" : inc.status;
 
               if (nextProgress % 20 === 0 || nextProgress === 100) {
                 addTerminalLog(
@@ -508,7 +514,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
       latitude: lat,
       longitude: lng,
       severity: "CRITICAL",
-      status: "REPORTED",
+      status: "NEW",
       servicesDispatched: { ambulance: false, police: false, fire: false },
       etaMinutes: 12,
       routeProgress: 0,
@@ -593,7 +599,7 @@ ${mapLink}`;
       prev.map((inc) => {
         if (inc.id === incidentId) {
           const nextServices = { ...inc.servicesDispatched, [service]: true };
-          const status = inc.status === "REPORTED" ? "DISPATCHED" : inc.status;
+          const status = (inc.status === "NEW" || inc.status === "UNDER_REVIEW") ? "ASSIGNED" : inc.status;
 
           addTerminalLog(`Dispatch Action: Allocated [${service.toUpperCase()}] squad to incident ${incidentId}.`, "success");
           addNotification("Dispatch", `${service.toUpperCase()} Assigned`, `Allocated crew to incident ${incidentId}. ETA adjusted.`);
@@ -611,7 +617,7 @@ ${mapLink}`;
   };
 
   // Update status workflow
-  const updateIncidentStatus = (incidentId: string, status: EmergencyIncident["status"]) => {
+  const updateIncidentStatus = (incidentId: string, status: EmergencyIncident["status"], extraFields?: Partial<EmergencyIncident>) => {
     setIncidents((prev) =>
       prev.map((inc) => {
         if (inc.id === incidentId) {
@@ -647,6 +653,7 @@ ${mapLink}`;
             status,
             etaMinutes: isResolved ? 0 : inc.etaMinutes,
             routeProgress: isResolved ? 100 : inc.routeProgress,
+            ...extraFields,
           };
         }
         return inc;

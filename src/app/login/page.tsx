@@ -54,7 +54,7 @@ export default function LoginPage() {
   const [vehicleModel, setVehicleModel] = useState("");
 
   // Selected login role segment
-  const [loginSegment, setLoginSegment] = useState<Role>("SUPER_ADMIN");
+  const [loginSegment, setLoginSegment] = useState<Role>("ADMIN");
 
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -140,9 +140,10 @@ export default function LoginPage() {
 
   const quickLogin = async (selectedRole: Role) => {
     const defaultEmails = {
-      SUPER_ADMIN: "admin@roadsos.com",
-      DRIVER: "driver@roadsos.com",
+      ADMIN: "admin@roadsos.com",
+      AUTHORITY: "authority@roadsos.com",
       EMERGENCY_TEAM: "responder@roadsos.com",
+      USER: "driver@roadsos.com",
     };
     setErrorMsg("");
     setSuccessMsg("");
@@ -262,57 +263,74 @@ export default function LoginPage() {
                 <label className="text-[9px] font-black uppercase text-slate-500 tracking-wider">
                   Select login role
                 </label>
-                <div className="grid grid-cols-3 p-1 bg-slate-50 border border-slate-200/60 rounded-xl gap-1">
+                <div className="grid grid-cols-4 p-1 bg-slate-50 border border-slate-200/60 rounded-xl gap-1">
                   <button
                     type="button"
                     onClick={() => {
-                      setLoginSegment("SUPER_ADMIN");
-                      if (!email || email === "driver@roadsos.com" || email === "responder@roadsos.com") {
+                      setLoginSegment("ADMIN");
+                      if (!email || email === "driver@roadsos.com" || email === "responder@roadsos.com" || email === "authority@roadsos.com") {
                         setEmail("admin@roadsos.com");
                       }
                     }}
-                    className={`py-2 px-1 rounded-lg text-[9px] font-black transition-all flex items-center justify-center space-x-1 ${
-                      loginSegment === "SUPER_ADMIN"
+                    className={`py-2 px-0.5 rounded-lg text-[8px] font-black transition-all flex items-center justify-center space-x-0.5 ${
+                      loginSegment === "ADMIN"
                         ? "bg-white text-brand-primary shadow-sm border border-slate-200/50"
                         : "text-text-secondary hover:text-brand-navy"
                     }`}
                   >
-                    <Shield className="w-3.5 h-3.5" />
+                    <Shield className="w-3 h-3" />
                     <span>Admin</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      setLoginSegment("EMERGENCY_TEAM");
-                      if (!email || email === "driver@roadsos.com" || email === "admin@roadsos.com") {
-                        setEmail("responder@roadsos.com");
+                      setLoginSegment("AUTHORITY");
+                      if (!email || email === "driver@roadsos.com" || email === "admin@roadsos.com" || email === "responder@roadsos.com") {
+                        setEmail("authority@roadsos.com");
                       }
                     }}
-                    className={`py-2 px-1 rounded-lg text-[9px] font-black transition-all flex items-center justify-center space-x-1 ${
-                      loginSegment === "EMERGENCY_TEAM"
+                    className={`py-2 px-0.5 rounded-lg text-[8px] font-black transition-all flex items-center justify-center space-x-0.5 ${
+                      loginSegment === "AUTHORITY"
                         ? "bg-white text-brand-primary shadow-sm border border-slate-200/50"
                         : "text-text-secondary hover:text-brand-navy"
                     }`}
                   >
-                    <Activity className="w-3.5 h-3.5" />
+                    <Activity className="w-3 h-3" />
                     <span>Authority</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      setLoginSegment("DRIVER");
-                      if (!email || email === "admin@roadsos.com" || email === "responder@roadsos.com") {
-                        setEmail("driver@roadsos.com");
+                      setLoginSegment("EMERGENCY_TEAM");
+                      if (!email || email === "driver@roadsos.com" || email === "admin@roadsos.com" || email === "authority@roadsos.com") {
+                        setEmail("responder@roadsos.com");
                       }
                     }}
-                    className={`py-2 px-1 rounded-lg text-[9px] font-black transition-all flex items-center justify-center space-x-1 ${
-                      loginSegment === "DRIVER"
+                    className={`py-2 px-0.5 rounded-lg text-[8px] font-black transition-all flex items-center justify-center space-x-0.5 ${
+                      loginSegment === "EMERGENCY_TEAM"
                         ? "bg-white text-brand-primary shadow-sm border border-slate-200/50"
                         : "text-text-secondary hover:text-brand-navy"
                     }`}
                   >
-                    <Car className="w-3.5 h-3.5" />
-                    <span>User / Driver</span>
+                    <Users className="w-3 h-3" />
+                    <span>Helper</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginSegment("USER");
+                      if (!email || email === "admin@roadsos.com" || email === "responder@roadsos.com" || email === "authority@roadsos.com") {
+                        setEmail("driver@roadsos.com");
+                      }
+                    }}
+                    className={`py-2 px-0.5 rounded-lg text-[8px] font-black transition-all flex items-center justify-center space-x-0.5 ${
+                      loginSegment === "USER"
+                        ? "bg-white text-brand-primary shadow-sm border border-slate-200/50"
+                        : "text-text-secondary hover:text-brand-navy"
+                    }`}
+                  >
+                    <Car className="w-3 h-3" />
+                    <span>User</span>
                   </button>
                 </div>
               </div>
@@ -691,7 +709,7 @@ export default function LoginPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => quickLogin("DRIVER")}
+                    onClick={() => quickLogin(loginSegment)}
                     className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-xs text-brand-navy flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
                   >
                     {/* Google Colored Logo */}
@@ -706,7 +724,7 @@ export default function LoginPage() {
 
                   <button
                     type="button"
-                    onClick={() => quickLogin("SUPER_ADMIN")}
+                    onClick={() => quickLogin(loginSegment)}
                     className="py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all font-bold text-xs text-brand-navy flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
                   >
                     {/* Microsoft Colored Logo */}

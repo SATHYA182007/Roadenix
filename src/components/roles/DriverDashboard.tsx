@@ -16,7 +16,9 @@ import {
   Flame,
   Radio,
   Clock,
-  Sparkles
+  Sparkles,
+  CheckCircle2,
+  Truck
 } from "lucide-react";
 
 interface EmergencyContact {
@@ -34,7 +36,8 @@ export default function DriverDashboard() {
     toggleServiceMode, 
     simulateCrash,
     simulateFatigue,
-    fatigueAlert
+    fatigueAlert,
+    incidents
   } = useRoadSos();
 
   const isBike = user?.vehicleType === "BIKE";
@@ -92,9 +95,93 @@ export default function DriverDashboard() {
     return circumference - ratio * circumference;
   };
 
+  // Find active incident for the logged-in user
+  const activeIncident = incidents.find(i => 
+    (i.driverName === user?.name || i.driverPhone === user?.phone) && 
+    i.status !== "ARCHIVED"
+  );
+
+  const incidentStatus = activeIncident?.status;
+  const isResolvedStatus = incidentStatus === "RESOLVED";
+
   return (
     <div className="space-y-6">
       
+      {/* 🚨 ACTIVE EOC INCIDENT STEP TIMELINE */}
+      {activeIncident && incidentStatus && (
+        <div className="glass-card p-6 border-red-500/20 bg-gradient-to-br from-red-500/[0.02] to-white relative overflow-hidden space-y-4">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-500 to-emerald-500 animate-pulse" />
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center space-x-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-emergency animate-ping shrink-0" />
+              <h3 className="text-xs font-black text-brand-navy uppercase tracking-widest">Active Incident EOC CAD Tracking</h3>
+            </div>
+            <span className="text-[10px] font-mono font-bold text-slate-400">Incident ID: {activeIncident.id}</span>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2 text-center select-none pt-2">
+            {[
+              { label: "Emergency Sent", active: incidentStatus === "NEW" || incidentStatus === "UNDER_REVIEW" || incidentStatus === "ASSIGNED" || incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT" || isResolvedStatus },
+              { label: "Authority Assigned", active: incidentStatus === "ASSIGNED" || incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT" || isResolvedStatus },
+              { label: "Team Assigned", active: (incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT" || isResolvedStatus) && (activeIncident.helperStatus !== undefined && activeIncident.helperStatus !== "Assigned") },
+              { label: "Helper Arriving", active: (incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT") && activeIncident.routeProgress > 0 && (activeIncident.helperStatus === "Travelling" || activeIncident.helperStatus === "Reached" || activeIncident.helperStatus === "Helping" || activeIncident.helperStatus === "Need Backup") },
+              { label: "Emergency Resolved", active: isResolvedStatus }
+            ].map((step, idx) => (
+              <div key={idx} className="flex flex-col items-center space-y-2">
+                <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-black transition-all ${
+                  step.active 
+                    ? "bg-brand-primary border-brand-primary text-white shadow-md shadow-blue-500/10" 
+                    : "bg-white border-slate-200 text-slate-400"
+                } ${step.active && !isResolvedStatus && idx === Math.max(0, [
+                  incidentStatus === "NEW" || incidentStatus === "UNDER_REVIEW",
+                  incidentStatus === "ASSIGNED",
+                  (incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT") && activeIncident.helperStatus !== "Assigned",
+                  (incidentStatus === "IN_PROGRESS" || incidentStatus === "NEEDS_SUPPORT") && activeIncident.routeProgress > 0 && (activeIncident.helperStatus === "Travelling" || activeIncident.helperStatus === "Reached"),
+                  isResolvedStatus
+                ].lastIndexOf(true)) ? "ring-4 ring-blue-500/20 animate-pulse scale-105" : ""}`}>
+                  {step.active ? (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <span>{idx + 1}</span>
+                  )}
+                </div>
+                <span className={`text-[9px] font-black uppercase tracking-wider block ${
+                  step.active ? "text-brand-navy font-bold" : "text-slate-450"
+                }`}>{step.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between text-xs text-text-secondary">
+            <div className="flex items-center space-x-2.5">
+              <Truck className="w-4.5 h-4.5 text-brand-primary animate-pulse shrink-0" />
+              <span>
+                {activeIncident.status === "RESOLVED" ? (
+                  <strong className="text-brand-success">Your emergency is RESOLVED. Dynamic telemetry core stabilized.</strong>
+                ) : activeIncident.helperStatus === "Travelling" ? (
+                  <span>Rescue Team Alpha is en-route. <strong>ETA: {activeIncident.etaMinutes} mins</strong> (Corridor routes pre-cleared)</span>
+                ) : activeIncident.helperStatus === "Reached" ? (
+                  <strong className="text-brand-primary">Rescue Team Alpha has reached your site. Assistance is active.</strong>
+                ) : activeIncident.helperStatus === "Helping" ? (
+                  <strong className="text-brand-success">First aid and vehicle recovery support are being provided on-scene.</strong>
+                ) : activeIncident.helperStatus === "Need Backup" ? (
+                  <strong className="text-brand-warning">Additional support teams and emergency backup resources are arriving.</strong>
+                ) : activeIncident.status === "ASSIGNED" ? (
+                  <span>Authority has dispatched a responder squad. Awaiting helper crew acceptance...</span>
+                ) : (
+                  <span>Accident detected. EOC Dispatcher is reviewing telemetry packets...</span>
+                )}
+              </span>
+            </div>
+            {activeIncident.hospitalName && (
+              <span className="text-[9px] font-bold text-brand-primary bg-blue-50 border border-blue-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Destination: {activeIncident.hospitalName}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Simulation triggers panel */}
       <div className="glass-card p-6 bg-gradient-to-r from-blue-50/50 to-indigo-50/30 border-blue-500/10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center md:text-left">

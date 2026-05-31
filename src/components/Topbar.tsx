@@ -89,7 +89,7 @@ export default function Topbar({ activeTab }: TopbarProps) {
 
 
         {/* Global System Broadcaster (Admin Only) */}
-        {user?.role === "SUPER_ADMIN" && (
+        {(user?.role === "ADMIN" || user?.role === "AUTHORITY") && (
           <div className="relative">
             <button
               onClick={() => setShowBroadcastInput(!showBroadcastInput)}

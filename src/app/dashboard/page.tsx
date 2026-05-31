@@ -13,6 +13,7 @@ import DriverDashboard from "@/components/roles/DriverDashboard";
 import EmergencyTeamDashboard from "@/components/roles/EmergencyTeamDashboard";
 import ResponderDashboard from "@/components/roles/ResponderDashboard";
 import VehicleMonitoringDashboard from "@/components/roles/VehicleMonitoringDashboard";
+import AdminDashboard from "@/components/roles/AdminDashboard";
 
 // Widgets
 import TerminalLogs from "@/components/widgets/TerminalLogs";
@@ -88,9 +89,10 @@ export default function DashboardRouter() {
       case "dashboard":
         return (
           <div className="space-y-6">
-            {user.role === "SUPER_ADMIN" && <SuperAdminDashboard />}
-            {user.role === "DRIVER" && <DriverDashboard />}
+            {user.role === "ADMIN" && <AdminDashboard />}
+            {user.role === "AUTHORITY" && <SuperAdminDashboard />}
             {user.role === "EMERGENCY_TEAM" && <ResponderDashboard />}
+            {user.role === "USER" && <DriverDashboard />}
           </div>
         );
       
@@ -978,8 +980,8 @@ export default function DashboardRouter() {
         {/* Dynamic Inner Tab Content */}
         {renderTabContent()}
 
-        {/* Grid panel for secondary simulators in Dashboard — DRIVER role only */}
-        {activeTab === "dashboard" && user.role === "DRIVER" && (
+        {/* Grid panel for secondary simulators in Dashboard — USER role only */}
+        {activeTab === "dashboard" && user.role === "USER" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
               

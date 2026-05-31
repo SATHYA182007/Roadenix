@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type Role = "SUPER_ADMIN" | "DRIVER" | "EMERGENCY_TEAM";
+export type Role = "ADMIN" | "AUTHORITY" | "EMERGENCY_TEAM" | "USER";
 export type VehicleType = "CAR" | "BIKE" | "BOTH";
 
 export interface UserProfile {
@@ -50,11 +50,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const MOCK_USERS: Record<Role, UserProfile> = {
-  SUPER_ADMIN: {
+  ADMIN: {
     id: "admin-123",
-    name: "Command Director Marcus",
+    name: "Platform Administrator Chief",
     email: "admin@roadsos.com",
-    role: "SUPER_ADMIN",
+    role: "ADMIN",
     vehicleType: "CAR",
     phone: "+1 (555) 911-0001",
     bloodGroup: "O+",
@@ -68,27 +68,27 @@ export const MOCK_USERS: Record<Role, UserProfile> = {
     },
     createdAt: "2026-05-30T10:00:00Z",
   },
-  DRIVER: {
-    id: "driver-456",
-    name: "Sarah Jenkins",
-    email: "driver@roadsos.com",
-    role: "DRIVER",
+  AUTHORITY: {
+    id: "authority-456",
+    name: "EOC Emergency Controller Director",
+    email: "authority@roadsos.com",
+    role: "AUTHORITY",
     vehicleType: "CAR",
-    phone: "+1 (555) 732-8924",
+    phone: "+1 (555) 911-0800",
     bloodGroup: "A+",
-    vehicleNumber: "DRV-101",
-    vehicleBrand: "Toyota",
-    vehicleModel: "Supra",
+    vehicleNumber: "EOC-911",
+    vehicleBrand: "Ford",
+    vehicleModel: "Explorer EOC",
     emergencyContact: {
-      name: "David Jenkins",
-      phone: "+1 (555) 732-4412",
-      relationship: "Spouse"
+      name: "EOC Support Division",
+      phone: "+1 (555) 911-0888",
+      relationship: "Agency Support"
     },
-    createdAt: "2026-05-30T11:30:00Z",
+    createdAt: "2026-05-30T11:00:00Z",
   },
   EMERGENCY_TEAM: {
     id: "responder-789",
-    name: "Rescue Team Alpha (Medic-14)",
+    name: "Rescue Helper Team Alpha (Medic-14)",
     email: "responder@roadsos.com",
     role: "EMERGENCY_TEAM",
     vehicleType: "CAR",
@@ -103,6 +103,24 @@ export const MOCK_USERS: Record<Role, UserProfile> = {
       relationship: "Agency Support"
     },
     createdAt: "2026-05-30T12:00:00Z",
+  },
+  USER: {
+    id: "user-999",
+    name: "Sarah Jenkins",
+    email: "driver@roadsos.com",
+    role: "USER",
+    vehicleType: "CAR",
+    phone: "+1 (555) 732-8924",
+    bloodGroup: "A+",
+    vehicleNumber: "DRV-101",
+    vehicleBrand: "Toyota",
+    vehicleModel: "Supra",
+    emergencyContact: {
+      name: "David Jenkins",
+      phone: "+1 (555) 732-4412",
+      relationship: "Spouse"
+    },
+    createdAt: "2026-05-30T11:30:00Z",
   },
 };
 

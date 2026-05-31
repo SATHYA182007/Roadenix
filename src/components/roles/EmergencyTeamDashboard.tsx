@@ -26,11 +26,13 @@ export default function EmergencyTeamDashboard() {
 
   const handleStatusStep = (incident: EmergencyIncident) => {
     const statusMap: Record<EmergencyIncident["status"], EmergencyIncident["status"]> = {
-      REPORTED: "DISPATCHED",
-      DISPATCHED: "ON_SCENE",
-      ON_SCENE: "PATIENT_SECURED",
-      PATIENT_SECURED: "RESOLVED",
+      NEW: "UNDER_REVIEW",
+      UNDER_REVIEW: "ASSIGNED",
+      ASSIGNED: "IN_PROGRESS",
+      IN_PROGRESS: "NEEDS_SUPPORT",
+      NEEDS_SUPPORT: "RESOLVED",
       RESOLVED: "RESOLVED",
+      ARCHIVED: "ARCHIVED"
     };
     const nextStatus = statusMap[incident.status];
     updateIncidentStatus(incident.id, nextStatus);
@@ -171,8 +173,16 @@ export default function EmergencyTeamDashboard() {
                     />
                     
                     <div className="flex justify-between">
-                      {["REPORTED", "DISPATCHED", "ON_SCENE", "PATIENT_SECURED", "RESOLVED"].map((node, idx) => {
-                        const statusWeights = { REPORTED: 0, DISPATCHED: 25, ON_SCENE: 50, PATIENT_SECURED: 75, RESOLVED: 100 };
+                      {["NEW", "UNDER_REVIEW", "ASSIGNED", "IN_PROGRESS", "NEEDS_SUPPORT", "RESOLVED"].map((node, idx) => {
+                        const statusWeights: Record<EmergencyIncident["status"], number> = {
+                          NEW: 0,
+                          UNDER_REVIEW: 20,
+                          ASSIGNED: 40,
+                          IN_PROGRESS: 60,
+                          NEEDS_SUPPORT: 80,
+                          RESOLVED: 100,
+                          ARCHIVED: 100
+                        };
                         const currentWeight = statusWeights[selectedIncident.status];
                         const nodeWeight = statusWeights[node as EmergencyIncident["status"]];
                         
@@ -262,16 +272,68 @@ export default function EmergencyTeamDashboard() {
                   <span>Ambulance ETA: {selectedIncident.status === "RESOLVED" ? "Arrived" : `${selectedIncident.etaMinutes} minutes`}</span>
                 </div>
 
-                <button
-                  onClick={() => handleStatusStep(selectedIncident)}
-                  className="px-6 py-3 rounded-xl font-bold bg-brand-primary hover:bg-brand-light text-white shadow-md shadow-blue-500/10 flex items-center space-x-2 transition-all active:scale-95 cursor-pointer text-xs uppercase tracking-wider"
-                >
-                  <span>Advance Status (➔ {
-                    selectedIncident.status === "REPORTED" ? "DISPATCH" :
-                    selectedIncident.status === "DISPATCHED" ? "ON SCENE" :
-                    selectedIncident.status === "ON_SCENE" ? "PATIENT SECURED" : "RESOLVED"
-                  })</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  {selectedIncident.status === "NEW" && (
+                    <button
+                      disabled
+                      className="px-6 py-3 rounded-xl font-bold bg-slate-100 text-slate-400 cursor-not-allowed text-xs uppercase tracking-wider border border-slate-200"
+                    >
+                      Awaiting EOC Dispatch
+                    </button>
+                  )}
+                  {selectedIncident.status === "UNDER_REVIEW" && (
+                    <button
+                      disabled
+                      className="px-6 py-3 rounded-xl font-bold bg-slate-100 text-slate-400 cursor-not-allowed text-xs uppercase tracking-wider border border-slate-200"
+                    >
+                      Under EOC Review
+                    </button>
+                  )}
+                  {selectedIncident.status === "ASSIGNED" && (
+                    <button
+                      onClick={() => {
+                        updateIncidentStatus(selectedIncident.id, "IN_PROGRESS", { 
+                          helperStatus: "Accepted",
+                          routeProgress: 20
+                        });
+                      }}
+                      className="px-6 py-3 rounded-xl font-bold bg-brand-navy hover:bg-slate-800 text-white shadow-md flex items-center space-x-2 transition-all active:scale-95 cursor-pointer text-xs uppercase tracking-wider"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-brand-success" />
+                      <span>Accept Mission</span>
+                    </button>
+                  )}
+                  {(selectedIncident.status === "IN_PROGRESS" || selectedIncident.status === "NEEDS_SUPPORT") && (
+                    <>
+                      {selectedIncident.status === "IN_PROGRESS" && (
+                        <button
+                          onClick={() => {
+                            updateIncidentStatus(selectedIncident.id, "NEEDS_SUPPORT", { 
+                              helperStatus: "Need Backup"
+                            });
+                          }}
+                          className="px-6 py-3 rounded-xl font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-md flex items-center space-x-2 transition-all active:scale-95 cursor-pointer text-xs uppercase tracking-wider"
+                        >
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>Demand More Teams (Backup)</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          updateIncidentStatus(selectedIncident.id, "RESOLVED", { 
+                            helperStatus: "Resolved",
+                            routeProgress: 100,
+                            etaMinutes: 0
+                          });
+                        }}
+                        className="px-6 py-3 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md flex items-center space-x-2 transition-all active:scale-95 cursor-pointer text-xs uppercase tracking-wider animate-pulse"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Mark Resolved</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
             </div>

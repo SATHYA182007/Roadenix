@@ -21,7 +21,8 @@ import {
   Truck,
   Heart,
   X,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -43,6 +44,7 @@ export default function SuperAdminDashboard() {
   const [dialingIncident, setDialingIncident] = useState<EmergencyIncident | null>(null);
   const [dialingStatus, setDialingStatus] = useState<"CONNECTING" | "CONNECTED">("CONNECTING");
   const [copiedReportId, setCopiedReportId] = useState<string | null>(null);
+  const [assigningIncident, setAssigningIncident] = useState<EmergencyIncident | null>(null);
 
   const activeIncidents = incidents.filter(i => i.status !== "RESOLVED");
   const totalVehiclesCount = 840; // Simulated globally
@@ -279,13 +281,20 @@ Additional Data: [Incident ID: ${inc.id} | AI Confidence: ${inc.accidentConfiden
               <span>{copiedReportId === criticalIncident.id ? "Report Copied ✓" : "Copy SOS Report"}</span>
             </button>
 
-            <button
-              onClick={() => updateIncidentStatus(criticalIncident.id, "RESOLVED")}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] uppercase tracking-wider shadow-md flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer animate-bounce"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 animate-pulse" />
-              <span>Mark Resolved</span>
-            </button>
+            {criticalIncident.assignedTeamName ? (
+              <div className="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-brand-success font-extrabold text-[11px] uppercase tracking-wider flex items-center space-x-1.5 shadow-sm">
+                <CheckCircle2 className="w-3.5 h-3.5 text-brand-success" />
+                <span>Assigned: {criticalIncident.assignedTeamName}</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setAssigningIncident(criticalIncident)}
+                className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-light text-white font-extrabold text-[11px] uppercase tracking-wider shadow-md flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer animate-pulse"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Assign Job</span>
+              </button>
+            )}
 
           </div>
 
@@ -494,12 +503,18 @@ Additional Data: [Incident ID: ${inc.id} | AI Confidence: ${inc.accidentConfiden
                               >
                                 Fire
                               </button>
-                              <button
-                                onClick={() => updateIncidentStatus(inc.id, "RESOLVED")}
-                                className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-primary text-white hover:bg-brand-light shadow-sm"
-                              >
-                                Resolve
-                              </button>
+                              {inc.assignedTeamName ? (
+                                <span className="px-2.5 py-1 text-[9px] font-extrabold text-brand-success bg-emerald-50 border border-emerald-100 rounded-lg">
+                                  Assigned: {inc.assignedTeamName}
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => setAssigningIncident(inc)}
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-brand-primary text-white hover:bg-brand-light shadow-sm cursor-pointer"
+                                >
+                                  Assign Job
+                                </button>
+                              )}
                             </div>
                           )}
                         </div>
@@ -577,6 +592,98 @@ Additional Data: [Incident ID: ${inc.id} | AI Confidence: ${inc.accidentConfiden
 
           </div>
         </div>
+
+      {/* 🚑 ASSIGN HELPER TEAM MODAL POPUP */}
+      {assigningIncident && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-lg flex items-center justify-center p-4">
+          <div className="w-full max-w-md glass-card bg-white/95 border-slate-200 p-6 shadow-2xl relative space-y-5 text-left text-slate-700">
+            <div>
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setAssigningIncident(null)}
+                  className="p-1 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-brand-navy transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <h3 className="text-sm font-black text-brand-navy tracking-tight uppercase">Assign Helper Team</h3>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                Dispatch standby paramedic crew to Incident {assigningIncident.id}
+              </p>
+            </div>
+
+            <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1 custom-scrollbar">
+              {[
+                { id: "responder-789", name: "Rescue Helper Team Alpha (Medic-14)", type: "AMBULANCE" },
+                { id: "team-beta", name: "Rescue Helper Team Beta (Medic-09)", type: "AMBULANCE" },
+                { id: "team-patrol", name: "Police Patrol Squad Alpha", type: "PATROL" },
+                { id: "team-engine", name: "Fire Engine Rescue Charlie", type: "ENGINE" },
+              ].map((team) => {
+                const busy = incidents.some(
+                  (inc) =>
+                    inc.assignedTeamId === team.id &&
+                    inc.status !== "RESOLVED" &&
+                    inc.status !== "ARCHIVED"
+                );
+                return (
+                  <div
+                    key={team.id}
+                    className={`p-3.5 rounded-xl border flex items-center justify-between text-xs font-semibold ${
+                      busy
+                        ? "bg-slate-50/50 border-slate-100 opacity-60 text-slate-400"
+                        : "bg-slate-50 border-slate-200 text-brand-navy shadow-sm"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="font-extrabold text-brand-navy flex items-center space-x-2">
+                        <span>{team.name}</span>
+                        <span className="text-[8px] font-mono font-bold bg-white border border-slate-200 px-1 rounded text-slate-400">
+                          {team.type}
+                        </span>
+                      </div>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                        {busy ? "BUSY • ON MISSION" : "FREE • STANDBY"}
+                      </p>
+                    </div>
+
+                    {!busy ? (
+                      <button
+                        onClick={() => {
+                          updateIncidentStatus(assigningIncident.id, "ASSIGNED", {
+                            assignedTeamId: team.id,
+                            assignedTeamName: team.name,
+                            helperStatus: "Assigned",
+                            routeProgress: 0,
+                            etaMinutes: 10,
+                          });
+                          setAssigningIncident(null);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-brand-primary hover:bg-brand-light text-white text-[10px] font-black uppercase tracking-wider shadow-sm transition-all active:scale-95 cursor-pointer"
+                      >
+                        Assign
+                      </button>
+                    ) : (
+                      <span className="px-2 py-1 rounded bg-slate-100 text-[9px] font-black text-slate-450 uppercase tracking-widest">
+                        Allocated
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="flex gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setAssigningIncident(null)}
+                className="w-full py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Cancel Dispatch
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
     </div>

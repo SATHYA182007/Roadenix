@@ -35,36 +35,36 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
 
   const getMenuItems = () => {
     switch (user?.role) {
-      case "SUPER_ADMIN":
+      case "ADMIN":
         return [
-          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-          { id: "alerts", label: "Emergency Monitoring", icon: ShieldAlert, badge: true },
-          { id: "user_management", label: "User Management", icon: Users },
-          { id: "analytics", label: "AI Analytics", icon: LineChart },
-          { id: "gps", label: "GPS Monitoring", icon: Map },
+          { id: "dashboard", label: "Dashboard Hub", icon: LayoutDashboard },
+          { id: "reports", label: "System Reports", icon: FileText },
           { id: "system", label: "System Health", icon: Radio },
-          { id: "reports", label: "Reports", icon: FileText },
           { id: "settings", label: "Settings", icon: Settings },
         ];
-      case "DRIVER":
+      case "AUTHORITY":
         return [
-          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-          { id: "vehicle", label: "Vehicle Monitoring", icon: Cpu },
-          { id: "gps", label: "GPS Tracking", icon: Map },
-          { id: "contacts", label: "Emergency Contacts", icon: Phone },
-          { id: "ai_safety", label: "AI Safety", icon: ShieldAlert },
-          { id: "service", label: "Service Mode", icon: Wrench, warnBadge: true },
-          { id: "history", label: "Accident History", icon: History },
+          { id: "dashboard", label: "EOC Dashboard", icon: LayoutDashboard },
+          { id: "alerts", label: "EOC Operations Alert", icon: ShieldAlert, badge: true },
+          { id: "gps", label: "GIS Radar Tracking", icon: Map },
+          { id: "reports", label: "Dispatch Reports", icon: FileText },
           { id: "settings", label: "Settings", icon: Settings },
         ];
       case "EMERGENCY_TEAM":
         return [
-          { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-          { id: "alerts", label: "Active Emergencies", icon: ShieldAlert, badge: true },
-          { id: "dispatch", label: "Dispatch Center", icon: Wrench },
-          { id: "gps", label: "Emergency Map", icon: Map },
+          { id: "dashboard", label: "Response Center", icon: LayoutDashboard },
+          { id: "alerts", label: "Assigned Missions", icon: ShieldAlert, badge: true },
           { id: "history", label: "Incident History", icon: History },
-          { id: "performance", label: "Performance Analytics", icon: LineChart },
+          { id: "performance", label: "Crew Analytics", icon: LineChart },
+          { id: "settings", label: "Settings", icon: Settings },
+        ];
+      case "USER":
+        return [
+          { id: "dashboard", label: "My Roadenix Hub", icon: LayoutDashboard },
+          { id: "vehicle", label: "Vehicle Diagnostics", icon: Cpu },
+          { id: "gps", label: "GPS Asset Map", icon: Map },
+          { id: "contacts", label: "Crisis Contacts", icon: Phone },
+          { id: "ai_safety", label: "AI Safety Advisor", icon: ShieldAlert },
           { id: "settings", label: "Settings", icon: Settings },
         ];
       default:

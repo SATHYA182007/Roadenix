@@ -37,12 +37,14 @@ export default function GlobalAiAssistant() {
   // Dynamic initialization of chat based on role
   useEffect(() => {
     let greeting = "";
-    if (user?.role === "SUPER_ADMIN") {
-      greeting = "Greetings, Administrator. I am the RoadSOS Global Intelligence Core. I monitor global incident clusters, MQTT gateway streams, and dispatch telemetry. How may I help you analyze our response vectors today?";
-    } else if (user?.role === "DRIVER") {
-      greeting = "Hello! I am your RoadSOS In-Vehicle Co-Pilot. I monitor physical shock sensors, rollover tilt levels, and fatigue scans. Ask me how to calibrate your safety scores, configure crisis contacts, or toggle Service Mode.";
+    if (user?.role === "ADMIN") {
+      greeting = "System Owner AI Online. I monitor global registries, platforms directories, weekly registrations, and platform KPIs. How can I help you optimize the system configurations today?";
+    } else if (user?.role === "AUTHORITY") {
+      greeting = "Emergency Operations Center Controller AI online. Dispatcher assistant reporting. Ready to analyze crash severity, check responder load and verify nearest trauma hospitals. What EOC queue incident shall we review?";
     } else if (user?.role === "EMERGENCY_TEAM") {
-      greeting = "Operations Center AI Online. Paramedic & rescue dispatch coordinator reporting. Ready to calculate routing pathways and share victim vitals. What active incident do you need to optimize?";
+      greeting = "Response Center AI Core online. Field guide co-pilot reporting. Ready to track vector navigation, update progress logs, upload photos and report vitals. What active rescue mission do you need guidance on?";
+    } else if (user?.role === "USER") {
+      greeting = "Hello! I am your RoadSOS In-Vehicle Co-Pilot. I monitor physical shock sensors, rollover tilt levels, and fatigue scans. Ask me how to calibrate your safety scores, configure crisis contacts, or toggle Service Mode.";
     } else {
       greeting = "Welcome to RoadSOS. I am the virtual safety operator. I can explain our automated G-force crash sensors, emergency networks, and Apple-grade story workflows. Ask me how it works!";
     }
@@ -66,19 +68,19 @@ export default function GlobalAiAssistant() {
 
   // Suggested Prompts based on active role
   const getSuggestedPrompts = () => {
-    if (user?.role === "SUPER_ADMIN") {
+    if (user?.role === "ADMIN") {
       return [
-        "Show global statistics",
+        "Show platform growth",
         "Ecosystem system health",
-        "Explain emergency workflow",
-        "Query accident analytics"
+        "Registered directories",
+        "Platform audit logs"
       ];
-    } else if (user?.role === "DRIVER") {
+    } else if (user?.role === "AUTHORITY") {
       return [
-        "Check my safety score",
-        "How do G-sensors work?",
-        "Explain service mode",
-        "Manage crisis contacts"
+        "Show active emergencies",
+        "Average dispatch latency",
+        "Lock dynamic light corridors",
+        "Analyze crash G-forces"
       ];
     } else if (user?.role === "EMERGENCY_TEAM") {
       return [
@@ -86,6 +88,13 @@ export default function GlobalAiAssistant() {
         "Vitals telemetry scan",
         "Responder ETA lookup",
         "Active incident summaries"
+      ];
+    } else if (user?.role === "USER") {
+      return [
+        "Check my safety score",
+        "How do G-sensors work?",
+        "Explain service mode",
+        "Manage crisis contacts"
       ];
     } else {
       return [
@@ -121,27 +130,21 @@ export default function GlobalAiAssistant() {
       let aiText = "";
 
       // Role specific answers
-      if (user?.role === "SUPER_ADMIN") {
-        if (lower.includes("stat") || lower.includes("global") || lower.includes("registered")) {
-          aiText = `SYSTEM REPORT: Currently tracking ${incidents.length} monitored incidents. AI G-Force Classification Accuracy is at 99.85%. All satellite GPS clusters reporting optimal status.`;
-        } else if (lower.includes("health") || lower.includes("mqtt") || lower.includes("esp32")) {
-          aiText = "SYSTEM CALIBRATION: MQTT brokers online at mqtt.roadsos.org:1883. ESP32 microcontroller logs running nominal (14% CPU load, VCC 3.31V). Firestore indices 100% synchronized.";
-        } else if (lower.includes("workflow") || lower.includes("cad") || lower.includes("corridor")) {
-          aiText = "CAD DISPATCH ROUTING: Intelligent lightweight light control override triggers are armed. Upon impact confirmation, optimal routing corridors are locked for EMT vehicles.";
+      if (user?.role === "ADMIN") {
+        if (lower.includes("stat") || lower.includes("growth") || lower.includes("registered") || lower.includes("directory")) {
+          aiText = `PLATFORM DIRECTORY: Managing registered user owners, EOC dispatchers, field helper teams, and vehicle fleets. All registries are active and synchronized.`;
+        } else if (lower.includes("health") || lower.includes("system") || lower.includes("audit")) {
+          aiText = `SYSTEM STATUS: Platform health is at 99.98% uptime. ESP32 pings: 14ms nominal. System logs have locked audit records in Firestore databases.`;
         } else {
-          aiText = "Global Commander, safety logs are normal. Ask me about MQTT stream performance, user account logs, or active dispatch queues.";
+          aiText = "Platform Owner, safety logs and registries are nominal. Ask me about directories statistics, system logs, or system health.";
         }
-      } else if (user?.role === "DRIVER") {
-        if (lower.includes("score") || lower.includes("fatigue") || lower.includes("safety")) {
-          aiText = `DRIVER INTELLIGENCE: Driver Safety Score is ${100 - telemetry.driverFatigueScore}/100. AI Risk Level: LOW. Fatigue eyelid blinks: ${telemetry.blinkRate} blinks/min (NOMINAL index).`;
-        } else if (lower.includes("contact") || lower.includes("crisis") || lower.includes("family")) {
-          aiText = "EMERGENCY CONTACTS: Persisted in secure Firestore profile database. In case of safety override failures (impact > 4.5G), custom SMS grids automatically dispatch coordinates to David Jenkins.";
-        } else if (lower.includes("service") || lower.includes("diagnose") || lower.includes("maintenance")) {
-          aiText = "MAINTENANCE BYPASS: Activating Service Mode stops automatic G-Force shock transmission to paramedic networks during repairs. Engine diagnostics report 100% calibrated.";
-        } else if (lower.includes("g-sensor") || lower.includes("crash") || lower.includes("shock")) {
-          aiText = "CRASH TRIGGER: ESP32 high-freq accelerometers detect peak impact Gs. A 10-second warning countdown sounds on your dashboard before CAD routing activates.";
+      } else if (user?.role === "AUTHORITY") {
+        if (lower.includes("emergency") || lower.includes("active") || lower.includes("dispatch") || lower.includes("queue")) {
+          aiText = `EOC COMMAND REPORT: Track active incidents in EOC queue. Current averages show 4.2 mins dispatch latency. All dynamic traffic lights override triggers armed.`;
+        } else if (lower.includes("hospital") || lower.includes("trauma") || lower.includes("nearest")) {
+          aiText = "TRAUMA SERVICES: Connected to SF General Emergency, Smart City Trauma Hub, and Bay Area Medical Center. ETA optimization recalibrates vectors.";
         } else {
-          aiText = "Co-pilot is checking. Your speed, engine heat, and tire PSI are nominal. Ask me about crash safety protocols, crisis contacts, or diagnostics.";
+          aiText = "EOC Controller, dispatch channels online. Ask me about active emergency queues, response times, or hospital vectors.";
         }
       } else if (user?.role === "EMERGENCY_TEAM") {
         if (lower.includes("routing") || lower.includes("vector") || lower.includes("map")) {
@@ -152,6 +155,18 @@ export default function GlobalAiAssistant() {
           aiText = "RESCUE DISPATCH: Paramedic standbys are active. Status update triggers auto-recalculates ambulance ETAs based on traffic light override coordinates.";
         } else {
           aiText = "EMT Operator, dispatch networks are online. Ask me about active incident telemetry, dynamic ambulance routing vectors, or light controls.";
+        }
+      } else if (user?.role === "USER") {
+        if (lower.includes("score") || lower.includes("fatigue") || lower.includes("safety")) {
+          aiText = `DRIVER INTELLIGENCE: Driver Safety Score is ${100 - telemetry.driverFatigueScore}/100. AI Risk Level: LOW. Fatigue eyelid blinks: ${telemetry.blinkRate} blinks/min (NOMINAL index).`;
+        } else if (lower.includes("contact") || lower.includes("crisis") || lower.includes("family")) {
+          aiText = "EMERGENCY CONTACTS: Persisted in secure Firestore profile database. In case of safety override failures (impact > 4.5G), custom SMS grids automatically dispatch coordinates to David Jenkins.";
+        } else if (lower.includes("service") || lower.includes("diagnose") || lower.includes("maintenance")) {
+          aiText = "MAINTENANCE BYPASS: Activating Service Mode stops automatic G-Force shock transmission to paramedic networks during repairs. Engine diagnostics report 100% calibrated.";
+        } else if (lower.includes("g-sensor") || lower.includes("crash") || lower.includes("shock")) {
+          aiText = "CRASH TRIGGER: ESP32 high-freq accelerometers detect peak impact Gs. A 10-second warning countdown sounds on your dashboard before CAD routing activates.";
+        } else {
+          aiText = "Co-pilot is checking. Your speed, engine heat, and tire PSI are nominal. Ask me about crash safety protocols, crisis contacts, or diagnostics.";
         }
       } else {
         // Guest / General safety info
@@ -298,13 +313,15 @@ export default function GlobalAiAssistant() {
                 <input
                   type="text"
                   placeholder={
-                    user?.role === "SUPER_ADMIN" 
-                      ? "Query global dashboard..." 
-                      : user?.role === "DRIVER" 
-                        ? "Ask safety co-pilot..." 
+                    user?.role === "ADMIN" 
+                      ? "Query admin control center..." 
+                      : user?.role === "AUTHORITY" 
+                        ? "Query emergency queue..." 
                         : user?.role === "EMERGENCY_TEAM" 
                           ? "Query responder center..." 
-                          : "Ask safety chatbot..."
+                          : user?.role === "USER"
+                            ? "Ask safety co-pilot..."
+                            : "Ask safety chatbot..."
                   }
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
