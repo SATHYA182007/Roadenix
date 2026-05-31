@@ -181,15 +181,13 @@ export default function LandingPage() {
       {/* Corporate Header Navigation */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Activity className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <span className="font-extrabold text-xl tracking-tight text-brand-navy">Road<span className="text-brand-primary">SOS</span></span>
-              <div className="text-[10px] text-muted font-bold tracking-widest uppercase">Emergency AI Network</div>
-            </div>
-          </div>
+          <Link href="/" className="h-32 flex items-center pl-4">
+            <img 
+              src="/roadenix2.png" 
+              alt="Roadenix Logo" 
+              className="h-32 w-auto object-contain transition-transform duration-300 hover:scale-105" 
+            />
+          </Link>
 
           <div className="hidden lg:flex items-center space-x-8">
             <a href="#problem" className="text-xs font-black uppercase tracking-wider text-slate-500 hover:text-brand-primary transition-colors">The Challenge</a>

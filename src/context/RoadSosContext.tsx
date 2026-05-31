@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
-import { useAuth } from "./AuthContext";
+import { useAuth, VehicleType } from "./AuthContext";
 
 export interface Telemetry {
   speed: number;
@@ -48,11 +48,21 @@ export interface TerminalLog {
   type: "info" | "warn" | "error" | "success" | "system";
 }
 
+export interface NotificationItem {
+  id: string;
+  timestamp: string;
+  category: "Emergency" | "Dispatch" | "Responder" | "Incident" | "Profile" | "GPS";
+  title: string;
+  message: string;
+  read: boolean;
+}
+
 interface RoadSosContextType {
   telemetry: Telemetry;
   serviceMode: boolean;
   incidents: EmergencyIncident[];
   terminalLogs: TerminalLog[];
+  notifications: NotificationItem[];
   showEmergencyModal: boolean;
   countdown: number;
   voiceActive: boolean;
@@ -65,6 +75,9 @@ interface RoadSosContextType {
   updateIncidentStatus: (incidentId: string, status: EmergencyIncident["status"]) => void;
   addTerminalLog: (message: string, type: TerminalLog["type"]) => void;
   clearTerminalLogs: () => void;
+  addNotification: (category: NotificationItem["category"], title: string, message: string) => void;
+  clearNotifications: () => void;
+  markNotificationsAsRead: () => void;
   toggleVoiceAssistant: () => void;
   setLanguage: (lang: "EN" | "ES" | "FR") => void;
   simulateFatigue: () => void;
@@ -74,7 +87,7 @@ interface RoadSosContextType {
 const RoadSosContext = createContext<RoadSosContextType | undefined>(undefined);
 
 // Initial telemetry state
-const initialTelemetry = (vehicleType: "CAR" | "BIKE" = "CAR"): Telemetry => ({
+const initialTelemetry = (vehicleType: VehicleType = "CAR"): Telemetry => ({
   speed: 64,
   shockG: 1.0,
   engineTemp: 88,
@@ -101,6 +114,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
   const [serviceMode, setServiceMode] = useState<boolean>(false);
   const [incidents, setIncidents] = useState<EmergencyIncident[]>([]);
   const [terminalLogs, setTerminalLogs] = useState<TerminalLog[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [voiceActive, setVoiceActive] = useState(false);
@@ -108,6 +122,29 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
   const [fatigueAlert, setFatigueAlert] = useState(false);
 
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper to add notification log
+  const addNotification = (
+    category: NotificationItem["category"],
+    title: string,
+    message: string
+  ) => {
+    const newNotif: NotificationItem = {
+      id: `notif-${Math.random().toString(36).substring(2, 9)}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      category,
+      title,
+      message,
+      read: false,
+    };
+    setNotifications((prev) => [newNotif, ...prev].slice(0, 100));
+  };
+
+  const clearNotifications = () => setNotifications([]);
+  
+  const markNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   // Helper to add terminal logs
   const addTerminalLog = (message: string, type: TerminalLog["type"] = "info") => {
@@ -129,6 +166,12 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
     addTerminalLog("ESP32 IoT Module detected: Version 3.4.1 [MAC: 3F:4A:BC:12:88].", "info");
     addTerminalLog("MQTT Client: Connected to topic '/vehicle/telemetry/#'", "success");
     addTerminalLog("Sensor integrity scan: 100% functional. Driver safe.", "success");
+
+    // Seed premium notifications
+    addNotification("GPS", "GPS Lock Established", "Satellites locked: 11. Coordinates: 37.7749° N, -122.4194° W");
+    addNotification("Profile", "Security Session Active", "Authorized as Marcus (Director Role)");
+    addNotification("Dispatch", "EMS Core Standby", "Ambulance Sectors 4 & 5 reporting ready");
+    addNotification("Incident", "History Logs Consolidated", "Merged prior resolved incident telemetry sets");
 
     // Add a couple of initial resolved incidents to build premium history dashboard
     setIncidents([
@@ -445,29 +488,100 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
   // Create an active emergency incident
   const triggerAccidentDispatch = () => {
     const isBike = user?.vehicleType === "BIKE";
+    const driverName = user?.name || "Sarah Jenkins";
+    const driverPhone = user?.phone || "+1 (555) 732-8924";
+    const bloodGroup = user?.bloodGroup || "O+";
+    const vehicleName = `${user?.vehicleBrand || "Toyota"} ${user?.vehicleModel || "Supra"} (${user?.vehicleNumber || "DRV-101"})`;
+    const emergencyName = user?.emergencyContact?.name || "David Jenkins";
+    const emergencyPhone = user?.emergencyContact?.phone || "+1 (555) 732-4412";
+    
+    const lat = parseFloat((37.7749 + (Math.random() - 0.5) * 0.02).toFixed(5));
+    const lng = parseFloat((-122.4194 + (Math.random() - 0.5) * 0.02).toFixed(5));
+    const incidentId = `inc-${Math.floor(100 + Math.random() * 900)}`;
+
     const newIncident: EmergencyIncident = {
-      id: `inc-${Math.floor(100 + Math.random() * 900)}`,
-      driverName: user?.name || "Sarah Jenkins",
-      driverPhone: user?.phone || "+1 (555) 732-8924",
+      id: incidentId,
+      driverName,
+      driverPhone,
       vehicleType: isBike ? "BIKE" : "CAR",
       timestamp: new Date().toISOString(),
-      latitude: 37.7749 + (Math.random() - 0.5) * 0.02,
-      longitude: -122.4194 + (Math.random() - 0.5) * 0.02,
+      latitude: lat,
+      longitude: lng,
       severity: "CRITICAL",
       status: "REPORTED",
       servicesDispatched: { ambulance: false, police: false, fire: false },
       etaMinutes: 12,
       routeProgress: 0,
-      accidentConfidence: 96,
+      accidentConfidence: 97,
       accidentReason: isBike ? "Helmet ejection & High impact G-Spike" : "G-Spike (6.8G) & Smoke density trigger",
     };
 
     setIncidents((prev) => [newIncident, ...prev]);
-    addTerminalLog(`🚨 GLOBAL SOS BROADCAST: Incident ${newIncident.id} registered for ${newIncident.driverName}. Waiting for dispatch selection...`, "error");
+
+    // 1. GENERATE INCIDENT REPORT IN MONOSPACE TERMINAL
+    addTerminalLog("==================================================", "error");
+    addTerminalLog("🚨 ACCIDENT DETECTED", "error");
+    addTerminalLog(`Vehicle Type: ${isBike ? "BIKE" : "CAR"} (${vehicleName})`, "warn");
+    addTerminalLog(`Speed: 0 km/h (Impact deceleration event)`, "warn");
+    addTerminalLog(`Impact Force: 6.8 G`, "error");
+    addTerminalLog(`Driver: ${driverName}`, "info");
+    addTerminalLog(`Blood Group: ${bloodGroup}`, "error");
+    addTerminalLog(`GPS: ${lat}, ${lng}`, "success");
+    addTerminalLog(`Status: Emergency Services Dispatched`, "success");
+    addTerminalLog(`Additional Data: [ID: ${incidentId} | AI Confidence: 97% | Severity: CRITICAL | Nearest Hospital: SF General Emergency | Time: ${new Date().toLocaleTimeString()} | Date: ${new Date().toLocaleDateString()}]`, "info");
+    addTerminalLog("==================================================", "error");
+
+    // 2. SIMULATE WHATSAPP EMERGENCY AUTOMATIONS
+    const mapLink = `https://maps.google.com/?q=${lat},${lng}`;
+    
+    // WA Message Template Formatter
+    const makeWaMessage = (recipientName: string) => `🚨 ROADENIX EMERGENCY ALERT
+
+Accident Detected
+
+Driver:
+${driverName}
+
+Blood Group:
+${bloodGroup}
+
+Vehicle:
+${isBike ? "BIKE" : "CAR"}
+
+Speed:
+0 km/h
+
+Impact:
+6.8 G
+
+GPS:
+${lat},
+${lng}
+
+Status:
+Emergency Services Dispatched
+
+Location:
+${mapLink}`;
+
+    // Log simulated dispatches
+    addTerminalLog(`📲 [WhatsApp Simulator] Dispatching automated alert to Emergency Contact (${emergencyName} - ${emergencyPhone})...`, "system");
+    addTerminalLog(`[WA Alert ➔ Contact]:\n${makeWaMessage(emergencyName)}`, "success");
+
+    addTerminalLog(`📲 [WhatsApp Simulator] Dispatching automated alert to Admin Emergency Group...`, "system");
+    addTerminalLog(`[WA Alert ➔ Admins]:\n${makeWaMessage("Admin Group")}`, "success");
+
+    addTerminalLog(`📲 [WhatsApp Simulator] Dispatching automated alert to Responder Team...`, "system");
+    addTerminalLog(`[WA Alert ➔ Responders]:\n${makeWaMessage("Responder Team")}`, "success");
+
+    // 3. PUSH NOTIFICATION DRAWER ENTRIES
+    addNotification("Emergency", "Crash Detected - 6.8G Spike", `Driver ${driverName} crashed. Gs: 6.8 | Blood: ${bloodGroup}`);
+    addNotification("Incident", "Accident Report Generated", `Formulated incident telemetry package for ${incidentId}`);
+    addNotification("GPS", "Emergency Vectors Locked", `Map pinpoint routing targeted to coordinates: ${lat}, ${lng}`);
 
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       try {
-        const text = `SOS Alert. Accident confirmed. Coordinate packages sent. Responders routing.`;
+        const text = `SOS Alert. Accident confirmed. WhatsApp alerts simulated. Responders routing.`;
         window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
       } catch (e) {}
     }
@@ -482,6 +596,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
           const status = inc.status === "REPORTED" ? "DISPATCHED" : inc.status;
 
           addTerminalLog(`Dispatch Action: Allocated [${service.toUpperCase()}] squad to incident ${incidentId}.`, "success");
+          addNotification("Dispatch", `${service.toUpperCase()} Assigned`, `Allocated crew to incident ${incidentId}. ETA adjusted.`);
 
           return {
             ...inc,
@@ -504,6 +619,12 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
           addTerminalLog(
             `Incident [${incidentId}] workflow updated ➔ ${status.replace("_", " ")}`,
             isResolved ? "success" : "info"
+          );
+
+          addNotification(
+            isResolved ? "Incident" : "Responder",
+            `Incident Status: ${status}`,
+            `Incident ${incidentId} updated to ${status.replace("_", " ")}`
           );
 
           if (isResolved) {
@@ -595,6 +716,7 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
         serviceMode,
         incidents,
         terminalLogs,
+        notifications,
         showEmergencyModal,
         countdown,
         voiceActive,
@@ -607,6 +729,9 @@ export function RoadSosProvider({ children }: { children: React.ReactNode }) {
         updateIncidentStatus,
         addTerminalLog,
         clearTerminalLogs,
+        addNotification,
+        clearNotifications,
+        markNotificationsAsRead,
         toggleVoiceAssistant,
         setLanguage,
         simulateFatigue,

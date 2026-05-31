@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRoadSos } from "@/context/RoadSosContext";
+import NotificationCenter from "@/components/widgets/NotificationCenter";
 import { 
   Bell, 
   Globe, 
@@ -26,7 +27,8 @@ export default function Topbar({ activeTab }: TopbarProps) {
     activeLanguage, 
     setLanguage, 
     triggerGlobalBroadcast,
-    incidents
+    incidents,
+    notifications
   } = useRoadSos();
   
   const [showNotifications, setShowNotifications] = useState(false);
@@ -141,36 +143,15 @@ export default function Topbar({ activeTab }: TopbarProps) {
             className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-text-secondary hover:text-brand-navy shadow-sm transition-all active:scale-95"
           >
             <Bell className="w-4 h-4" />
-            {activeAlerts.length > 0 && (
+            {((notifications && notifications.filter(n => !n.read).length > 0) || activeAlerts.length > 0) && (
               <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-brand-emergency animate-ping" />
             )}
           </button>
 
-          {/* Notifications Dropdown Drawer */}
+          {/* Floating Unified Notification Center */}
           {showNotifications && (
-            <div className="absolute right-0 top-12 bg-white border border-slate-200 shadow-xl rounded-2xl w-80 p-4 z-50 max-h-96 overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-                <span className="text-xs font-black text-brand-navy tracking-tight">Active SOS Incidents</span>
-                <span className="px-2 py-0.5 rounded bg-red-100 text-[10px] font-bold text-brand-emergency">
-                  {activeAlerts.length} Active
-                </span>
-              </div>
-              <div className="space-y-2 mt-2">
-                {activeAlerts.length === 0 ? (
-                  <p className="text-xs text-muted text-center py-4 font-semibold">No active emergencies detected.</p>
-                ) : (
-                  activeAlerts.map(inc => (
-                    <div key={inc.id} className="p-2.5 rounded-xl bg-red-50/50 border border-red-100/50 flex flex-col space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-brand-emergency">{inc.id} ({inc.vehicleType})</span>
-                        <span className="text-[10px] text-muted">{new Date(inc.timestamp).toLocaleTimeString()}</span>
-                      </div>
-                      <div className="text-[11px] font-bold text-brand-navy">{inc.driverName}</div>
-                      <div className="text-[10px] text-text-secondary truncate">{inc.accidentReason}</div>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div className="absolute right-0 top-12 z-50">
+              <NotificationCenter onClose={() => setShowNotifications(false)} />
             </div>
           )}
         </div>

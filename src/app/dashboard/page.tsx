@@ -11,6 +11,7 @@ import Topbar from "@/components/Topbar";
 import SuperAdminDashboard from "@/components/roles/SuperAdminDashboard";
 import DriverDashboard from "@/components/roles/DriverDashboard";
 import EmergencyTeamDashboard from "@/components/roles/EmergencyTeamDashboard";
+import ResponderDashboard from "@/components/roles/ResponderDashboard";
 import VehicleMonitoringDashboard from "@/components/roles/VehicleMonitoringDashboard";
 
 // Widgets
@@ -18,6 +19,7 @@ import TerminalLogs from "@/components/widgets/TerminalLogs";
 import FatigueDetection from "@/components/widgets/FatigueDetection";
 import AiAssistant from "@/components/widgets/AiAssistant";
 import GisTrackingMap from "@/components/maps/GisTrackingMap";
+import UserSettings from "@/components/widgets/UserSettings";
 
 import { 
   ShieldAlert, 
@@ -88,7 +90,7 @@ export default function DashboardRouter() {
           <div className="space-y-6">
             {user.role === "SUPER_ADMIN" && <SuperAdminDashboard />}
             {user.role === "DRIVER" && <DriverDashboard />}
-            {user.role === "EMERGENCY_TEAM" && <EmergencyTeamDashboard />}
+            {user.role === "EMERGENCY_TEAM" && <ResponderDashboard />}
           </div>
         );
       
@@ -953,38 +955,7 @@ export default function DashboardRouter() {
       case "settings":
         // Settings panel
         return (
-          <div className="glass-card p-6 bg-white space-y-6">
-            <div>
-              <h3 className="text-base font-black text-brand-navy">Ecosystem Configurations</h3>
-              <p className="text-xs text-text-secondary mt-0.5">Manage user credentials and MQTT settings.</p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <span className="text-[9px] font-black text-muted uppercase block">User Profile ID</span>
-                <span className="text-xs font-bold text-brand-navy block">{user.id}</span>
-              </div>
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <span className="text-[9px] font-black text-muted uppercase block">Registered Email</span>
-                <span className="text-xs font-bold text-brand-navy block">{user.email}</span>
-              </div>
-            </div>
-
-            <div className="border-t border-slate-100 pt-4 text-center">
-              <button
-                onClick={() => {
-                  localStorage.clear();
-                  if (typeof window !== "undefined") {
-                    alert("Local Storage cleared. Syncing initial databases...");
-                    window.location.reload();
-                  }
-                }}
-                className="px-4 py-2.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-brand-emergency text-xs font-bold transition-all active:scale-95"
-              >
-                Reset Ecosystem Database (Clear LocalStorage)
-              </button>
-            </div>
-          </div>
+          <UserSettings />
         );
 
       default:
@@ -1022,15 +993,6 @@ export default function DashboardRouter() {
                 <FatigueDetection />
               </div>
 
-              {/* Co-Pilot AI safety chatbot */}
-              <div className="xl:col-span-1">
-                <AiAssistant />
-              </div>
-
-              {/* scrolling Live diagnostics terminal log */}
-              <div className="xl:col-span-2">
-                <TerminalLogs />
-              </div>
 
             </div>
 

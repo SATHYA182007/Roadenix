@@ -3,16 +3,26 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 export type Role = "SUPER_ADMIN" | "DRIVER" | "EMERGENCY_TEAM";
-export type VehicleType = "CAR" | "BIKE";
+export type VehicleType = "CAR" | "BIKE" | "BOTH";
 
 export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
+  id: string; // uid
   role: Role;
-  vehicleType: VehicleType;
+  name: string; // fullName
+  email: string;
   phone: string;
+  bloodGroup: string;
+  vehicleType: VehicleType;
+  vehicleNumber: string;
+  vehicleBrand: string;
+  vehicleModel: string;
+  emergencyContact: {
+    name: string;
+    phone: string;
+    relationship: string;
+  };
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -20,7 +30,18 @@ interface AuthContextType {
   role: Role | null;
   loading: boolean;
   login: (email: string, role: Role) => Promise<boolean>;
-  signup: (name: string, email: string, phone: string, role: Role, vehicleType: VehicleType) => Promise<boolean>;
+  signup: (
+    name: string,
+    email: string,
+    phone: string,
+    role: Role,
+    vehicleType: VehicleType,
+    bloodGroup?: string,
+    vehicleNumber?: string,
+    vehicleBrand?: string,
+    vehicleModel?: string,
+    emergencyContact?: { name: string; phone: string; relationship: string }
+  ) => Promise<boolean>;
   logout: () => void;
   switchRole: (role: Role) => void;
   updateProfile: (profile: Partial<UserProfile>) => void;
@@ -36,6 +57,15 @@ export const MOCK_USERS: Record<Role, UserProfile> = {
     role: "SUPER_ADMIN",
     vehicleType: "CAR",
     phone: "+1 (555) 911-0001",
+    bloodGroup: "O+",
+    vehicleNumber: "ADM-911",
+    vehicleBrand: "Tesla",
+    vehicleModel: "Model S",
+    emergencyContact: {
+      name: "Marcus Jr.",
+      phone: "+1 (555) 911-0002",
+      relationship: "Child"
+    },
     createdAt: "2026-05-30T10:00:00Z",
   },
   DRIVER: {
@@ -45,6 +75,15 @@ export const MOCK_USERS: Record<Role, UserProfile> = {
     role: "DRIVER",
     vehicleType: "CAR",
     phone: "+1 (555) 732-8924",
+    bloodGroup: "A+",
+    vehicleNumber: "DRV-101",
+    vehicleBrand: "Toyota",
+    vehicleModel: "Supra",
+    emergencyContact: {
+      name: "David Jenkins",
+      phone: "+1 (555) 732-4412",
+      relationship: "Spouse"
+    },
     createdAt: "2026-05-30T11:30:00Z",
   },
   EMERGENCY_TEAM: {
@@ -54,6 +93,15 @@ export const MOCK_USERS: Record<Role, UserProfile> = {
     role: "EMERGENCY_TEAM",
     vehicleType: "CAR",
     phone: "+1 (555) 911-0114",
+    bloodGroup: "B+",
+    vehicleNumber: "MED-014",
+    vehicleBrand: "Ford",
+    vehicleModel: "F-350 Ambulance",
+    emergencyContact: {
+      name: "EOC Operations Control",
+      phone: "+1 (555) 911-0800",
+      relationship: "Agency Support"
+    },
     createdAt: "2026-05-30T12:00:00Z",
   },
 };
@@ -105,7 +153,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     phone: string,
     selectedRole: Role,
-    vehicleType: VehicleType
+    vehicleType: VehicleType,
+    bloodGroup?: string,
+    vehicleNumber?: string,
+    vehicleBrand?: string,
+    vehicleModel?: string,
+    emergencyContact?: { name: string; phone: string; relationship: string }
   ): Promise<boolean> => {
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -117,6 +170,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: selectedRole,
       vehicleType,
       phone,
+      bloodGroup: bloodGroup || "O+",
+      vehicleNumber: vehicleNumber || "MOCK-123",
+      vehicleBrand: vehicleBrand || "Generic",
+      vehicleModel: vehicleModel || "Standard",
+      emergencyContact: emergencyContact || {
+        name: "Default Contact",
+        phone: "+1 (555) 000-0000",
+        relationship: "Family"
+      },
       createdAt: new Date().toISOString(),
     };
 

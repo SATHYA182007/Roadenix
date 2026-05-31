@@ -14,7 +14,14 @@ import {
   Car,
   Compass,
   Radio,
-  FileSpreadsheet
+  FileSpreadsheet,
+  PhoneCall,
+  FileDown,
+  Volume2,
+  Truck,
+  Heart,
+  X,
+  ShieldCheck
 } from "lucide-react";
 import { 
   AreaChart, 
@@ -33,10 +40,14 @@ export default function SuperAdminDashboard() {
   const { user } = useAuth();
   
   const [filter, setFilter] = useState<"ALL" | "ACTIVE" | "RESOLVED">("ALL");
+  const [dialingIncident, setDialingIncident] = useState<EmergencyIncident | null>(null);
+  const [dialingStatus, setDialingStatus] = useState<"CONNECTING" | "CONNECTED">("CONNECTING");
+  const [copiedReportId, setCopiedReportId] = useState<string | null>(null);
 
   const activeIncidents = incidents.filter(i => i.status !== "RESOLVED");
   const totalVehiclesCount = 840; // Simulated globally
   const activeEmergenciesCount = activeIncidents.length;
+  const criticalIncident = activeIncidents[0];
 
   const filteredIncidents = incidents.filter(inc => {
     if (filter === "ACTIVE") return inc.status !== "RESOLVED";
@@ -53,9 +64,233 @@ export default function SuperAdminDashboard() {
     { name: "16:00", activeEmergencies: 6, confidenceAvg: 98 },
     { name: "20:00", activeEmergencies: activeEmergenciesCount, confidenceAvg: 97 },
   ];
+  const handleCallDriver = (inc: EmergencyIncident) => {
+    setDialingIncident(inc);
+    setDialingStatus("CONNECTING");
+    setTimeout(() => {
+      setDialingStatus("CONNECTED");
+    }, 1500);
+  };
+
+  const handleCopyReport = (inc: EmergencyIncident) => {
+    const isBike = inc.vehicleType === "BIKE";
+    const reportText = `🚨 ACCIDENT DETECTED
+Vehicle Type: ${isBike ? "BIKE" : "CAR"}
+Speed: 0 km/h (Impact deceleration event)
+Impact Force: 6.8 G
+Driver: ${inc.driverName}
+Blood Group: O+
+GPS: ${inc.latitude}, ${inc.longitude}
+Status: Emergency Services Dispatched
+Additional Data: [Incident ID: ${inc.id} | AI Confidence: ${inc.accidentConfidence}% | Severity: ${inc.severity} | Time: ${new Date(inc.timestamp).toLocaleTimeString()}]`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(reportText);
+      setCopiedReportId(inc.id);
+      setTimeout(() => {
+        setCopiedReportId(null);
+      }, 3000);
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      
+      {/* 📞 CALL DIALER POPUP SIMULATOR OVERLAY */}
+      {dialingIncident && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-lg flex items-center justify-center p-4">
+          <div className="w-full max-w-sm glass-card bg-slate-900 border-slate-800 p-6 text-center space-y-6 shadow-2xl relative overflow-hidden">
+            {/* Blinking Top Red Dot */}
+            <div className="absolute top-4 right-4 flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-emergency animate-ping" />
+              <span className="text-[9px] font-black text-slate-500 tracking-widest uppercase">EOC Encrypted</span>
+            </div>
+
+            <div className="space-y-1.5 pt-4">
+              <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700/60 flex items-center justify-center mx-auto text-brand-primary animate-pulse">
+                <PhoneCall className="w-7 h-7" />
+              </div>
+              <h3 className="text-sm font-black text-white tracking-tight uppercase">ESP32 Secure Voice Node</h3>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Driver Terminal: {dialingIncident.driverName}</p>
+            </div>
+
+            {/* Voice frequencies micro-graphics */}
+            <div className="flex items-center justify-center gap-1.5 h-12">
+              {dialingStatus === "CONNECTING" ? (
+                <div className="text-[10px] font-extrabold text-brand-warning animate-pulse uppercase tracking-widest">
+                  SYNCHRONIZING CALL GATEWAY...
+                </div>
+              ) : (
+                <div className="flex items-end justify-center gap-1 h-8 w-full px-6">
+                  {[0.5, 0.2, 0.8, 0.4, 0.9, 0.3, 0.7, 0.1, 0.6, 0.4, 0.8].map((delay, idx) => (
+                    <div 
+                      key={idx} 
+                      className="bg-brand-success w-1.5 rounded-full transition-all"
+                      style={{ 
+                        height: `${Math.floor(delay * 100)}%`,
+                        animation: `pulse 1.2s infinite ease-in-out alternate`,
+                        animationDelay: `${delay}s`
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1 text-slate-350 text-[11px] font-semibold bg-slate-950/40 p-3 rounded-xl border border-slate-850">
+              <div className="flex justify-between"><span>Status:</span> <span className={dialingStatus === "CONNECTED" ? "text-brand-success font-black" : "text-brand-warning font-black animate-pulse"}>{dialingStatus}</span></div>
+              <div className="flex justify-between"><span>IP Payload:</span> <span>10.0.12.84:5060</span></div>
+              <div className="flex justify-between"><span>Active Node:</span> <span className="font-mono">esp32_sos_core</span></div>
+            </div>
+
+            <button
+              onClick={() => setDialingIncident(null)}
+              className="w-full py-2.5 rounded-xl bg-red-600 hover:bg-red-750 text-white font-extrabold text-xs uppercase tracking-wider shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Hang Up Secure Call
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 🚨 LIVE EOC ACTIVE INCIDENT CRITICAL COCKPIT */}
+      {criticalIncident && (
+        <div className="p-5.5 rounded-3xl bg-gradient-to-br from-red-500/10 via-slate-900/90 to-slate-950 border border-brand-emergency/35 shadow-[0_0_25px_rgba(239,68,68,0.2)] animate-pulse relative overflow-hidden space-y-5">
+          {/* Overlay Grid lines */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none" 
+               style={{
+                 backgroundImage: 'linear-gradient(#ef4444 1px, transparent 1px), linear-gradient(90deg, #ef4444 1px, transparent 1px)',
+                 backgroundSize: '20px 20px'
+               }} 
+          />
+
+          {/* Heading */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 relative z-10">
+            <div className="flex items-center space-x-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-emergency animate-ping" />
+              <h2 className="text-sm font-black uppercase text-brand-emergency tracking-widest">EOC Live Dispatch Command Center</h2>
+              <span className="px-2 py-0.5 rounded text-[8px] font-black tracking-widest uppercase bg-brand-emergency/25 text-brand-emergency border border-brand-emergency/30">
+                CRITICAL EMERGENCY BLOCK
+              </span>
+            </div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">
+              Vector Lock Coordinate Packet: {criticalIncident.latitude.toFixed(4)}° N, {criticalIncident.longitude.toFixed(4)}° W
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10 text-[11px] font-semibold text-slate-300">
+            
+            {/* Block 1: Driver Specs */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center space-x-2 border-b border-white/5 pb-2 mb-1">
+                <Users className="w-4 h-4 text-brand-primary" />
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Driver Specs</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span>Driver Name:</span> <span className="text-white font-extrabold">{criticalIncident.driverName}</span></div>
+                <div className="flex justify-between"><span>Contact Phone:</span> <span className="text-white font-extrabold">{criticalIncident.driverPhone}</span></div>
+                <div className="flex justify-between"><span>Blood Group:</span> <span className="text-brand-emergency font-black">{user?.bloodGroup || "O+"}</span></div>
+                <div className="flex justify-between"><span>Vehicle Details:</span> <span className="text-brand-primary font-black uppercase">{criticalIncident.vehicleType} SPEC</span></div>
+              </div>
+            </div>
+
+            {/* Block 2: Crash Metrics */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center space-x-2 border-b border-white/5 pb-2 mb-1">
+                <Activity className="w-4 h-4 text-brand-warning animate-pulse" />
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Telemetry Vitals</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex justify-between"><span>G-Spike Impact:</span> <span className="text-brand-emergency font-extrabold">6.8 G</span></div>
+                <div className="flex justify-between"><span>Telemetry Velocity:</span> <span className="text-white font-extrabold">0 km/h</span></div>
+                <div className="flex justify-between"><span>AI Classification:</span> <span className="text-brand-warning font-extrabold">{criticalIncident.accidentConfidence}% Confident</span></div>
+                <div className="flex justify-between"><span>Nearest Hospital:</span> <span className="text-brand-success font-extrabold">SF General Emergency</span></div>
+              </div>
+            </div>
+
+            {/* Block 3: EOC Status & Action buttons */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center space-x-2 border-b border-white/5 pb-2 mb-1">
+                  <ShieldAlert className="w-4 h-4 text-brand-emergency" />
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">CAD Allocation status</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between"><span>Current Phase:</span> <span className="px-2 py-0.5 rounded bg-brand-emergency/20 text-brand-emergency font-black uppercase text-[9px]">{criticalIncident.status}</span></div>
+                  <div className="flex justify-between"><span>Time Elapsed:</span> <span className="text-white font-mono">03m:14s</span></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* EOC Action Triggers buttons row */}
+          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/5 relative z-10">
+            
+            <button
+              onClick={() => handleCallDriver(criticalIncident)}
+              className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-light text-white font-extrabold text-[11px] uppercase tracking-wider shadow-sm flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              <span>Call Voice Node</span>
+            </button>
+
+            <button
+              onClick={() => dispatchService(criticalIncident.id, "ambulance")}
+              className={`px-4 py-2 rounded-xl text-[11px] font-extrabold uppercase tracking-wider border transition-all flex items-center space-x-1.5 ${
+                criticalIncident.servicesDispatched.ambulance 
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-inner" 
+                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 cursor-pointer"
+              }`}
+            >
+              <Truck className="w-3.5 h-3.5" />
+              <span>EMT Ambulance</span>
+            </button>
+
+            <button
+              onClick={() => dispatchService(criticalIncident.id, "police")}
+              className={`px-4 py-2 rounded-xl text-[11px] font-extrabold uppercase tracking-wider border transition-all flex items-center space-x-1.5 ${
+                criticalIncident.servicesDispatched.police 
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-inner" 
+                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 cursor-pointer"
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Patrol Units</span>
+            </button>
+
+            <button
+              onClick={() => dispatchService(criticalIncident.id, "fire")}
+              className={`px-4 py-2 rounded-xl text-[11px] font-extrabold uppercase tracking-wider border transition-all flex items-center space-x-1.5 ${
+                criticalIncident.servicesDispatched.fire 
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-inner" 
+                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 cursor-pointer"
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Rescue Squad</span>
+            </button>
+
+            <button
+              onClick={() => handleCopyReport(criticalIncident)}
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[11px] uppercase tracking-wider flex items-center space-x-1.5 transition-all active:scale-95 ml-auto cursor-pointer"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>{copiedReportId === criticalIncident.id ? "Report Copied ✓" : "Copy SOS Report"}</span>
+            </button>
+
+            <button
+              onClick={() => updateIncidentStatus(criticalIncident.id, "RESOLVED")}
+              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] uppercase tracking-wider shadow-md flex items-center space-x-1.5 transition-all active:scale-95 cursor-pointer animate-bounce"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 animate-pulse" />
+              <span>Mark Resolved</span>
+            </button>
+
+          </div>
+
+        </div>
+      )}
       {/* Top executive KPI Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         

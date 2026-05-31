@@ -72,7 +72,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
     }
   };
 
-  const menuItems = getMenuItems();
+  const menuItems = getMenuItems() as any[];
 
   const { incidents } = useRoadSos();
   const activeAlertsCount = incidents.filter(i => i.status !== "RESOLVED").length;
@@ -87,19 +87,21 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       <div>
         <div className={`p-6 flex items-center justify-between border-b border-slate-100 ${collapsed ? "justify-center" : ""}`}>
           {!collapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                <Activity className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <span className="font-extrabold text-base tracking-tight text-brand-navy">Road<span className="text-brand-primary">SOS</span></span>
-                <div className="text-[8px] text-muted font-bold tracking-widest uppercase">AI Core v3.4</div>
-              </div>
+            <div className="flex items-center pl-2">
+              <img 
+                src="/roadenix2.png" 
+                alt="Roadenix Logo" 
+                className="h-28 w-auto object-contain" 
+              />
             </div>
           )}
           {collapsed && (
-            <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Activity className="w-5 h-5 animate-pulse" />
+            <div className="flex items-center justify-center w-full animate-pulse">
+              <img 
+                src="/roadenix2.png" 
+                alt="Roadenix Logo" 
+                className="h-16 w-auto object-contain" 
+              />
             </div>
           )}
 
